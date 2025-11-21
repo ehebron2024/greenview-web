@@ -1,5 +1,3 @@
-// src/components/SignUpForm.tsx
-
 import React, { useState } from "react";
 import { auth } from "../../lib/firebase"; // Ensure this file exists and exports 'auth'
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -30,7 +28,6 @@ const SignUpForm: React.FC = () => {
       );
 
       // If successful, the user is automatically signed in.
-      // userCredential.user contains the signed-in user object.
       console.log(
         "User signed up and logged in successfully:",
         userCredential.user
@@ -42,7 +39,6 @@ const SignUpForm: React.FC = () => {
       setPassword("");
 
       // Here you might redirect the user, update UI, etc.
-      // For example, redirect to a dashboard page: navigate('/dashboard');
     } catch (firebaseError: any) {
       // Catch Firebase-specific errors
       console.error(
@@ -50,29 +46,27 @@ const SignUpForm: React.FC = () => {
         firebaseError.code,
         firebaseError.message
       );
-      let friendlyErrorMessage = "An unknown error occurred during sign up.";
 
       // Provide more user-friendly messages for common Firebase Auth errors
       switch (firebaseError.code) {
         case "auth/email-already-in-use":
-          friendlyErrorMessage =
-            "This email address is already in use by another account.";
+          setError(
+            "This email is already registered. Please use a different email or log in."
+          );
           break;
         case "auth/invalid-email":
-          friendlyErrorMessage = "The email address is not valid.";
-          break;
-        case "auth/operation-not-allowed":
-          friendlyErrorMessage =
-            "Email/password sign-in is not enabled. Please check Firebase console.";
+          setError(
+            "The email address is not valid. Please enter a valid email."
+          );
           break;
         case "auth/weak-password":
-          friendlyErrorMessage =
-            "The password is too weak. Please choose a stronger password.";
+          setError("The password is too weak. Please use a stronger password.");
           break;
         default:
-          friendlyErrorMessage = firebaseError.message; // Fallback to Firebase's message
+          setError(
+            "An unknown error occurred during sign up. Please try again later."
+          );
       }
-      setError(friendlyErrorMessage);
     }
   };
 
