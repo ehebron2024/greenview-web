@@ -32,8 +32,6 @@ const SignInForm: React.FC = () => {
       setSuccessMessage(`Welcome back, ${userCredential.user.email}!`);
       setEmail("");
       setPassword("");
-
-      // Here you might redirect the user, update UI, etc.
     } catch (firebaseError: any) {
       // Catch Firebase-specific errors
       console.error(
@@ -49,6 +47,9 @@ const SignInForm: React.FC = () => {
           break;
         case "auth/wrong-password":
           setError("Incorrect password. Please try again.");
+          break;
+        case "auth/invalid-credential":
+          setError("Sorry, we can't find those account credentials.");
           break;
         case "auth/invalid-email":
           setError(
@@ -67,63 +68,95 @@ const SignInForm: React.FC = () => {
     <form
       onSubmit={handleSignIn}
       style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        textAlign: "left",
+        maxWidth: "400px",
+        margin: "20px auto",
+        padding: "20px",
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow
       }}
     >
-      <label htmlFor="email" style={{ color: "#013220", fontWeight: "bold" }}>
-        Email:
-      </label>
-      <input
-        type="email"
-        id="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-        style={{
-          width: "100%",
-          padding: "8px",
-          border: "1px solid #ccc",
-          borderRadius: "4px",
-        }}
-      />
-      <label
-        htmlFor="password"
-        style={{ color: "#013220", fontWeight: "bold" }}
+      <h2
+        style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "20px" }}
       >
-        Password:
-      </label>
-      <input
-        type="password"
-        id="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-        style={{
-          width: "100%",
-          padding: "8px",
-          border: "1px solid #ccc",
-          borderRadius: "4px",
-        }}
-      />
+        Sign In
+      </h2>
+      {error && <p style={{ color: "red", marginBottom: "10px" }}>{error}</p>}
+      {successMessage && (
+        <p style={{ color: "green", marginBottom: "10px" }}>{successMessage}</p>
+      )}
+      <div style={{ marginBottom: "15px" }}>
+        <label
+          htmlFor="email"
+          style={{ display: "block", marginBottom: "5px" }}
+        >
+          Email:
+        </label>
+        <input
+          type="email"
+          id="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          style={{
+            width: "100%",
+            padding: "10px",
+            border: "1px solid #ccc",
+            borderRadius: "6px",
+            fontSize: "16px",
+          }}
+        />
+      </div>
+      <div style={{ marginBottom: "15px" }}>
+        <label
+          htmlFor="password"
+          style={{ display: "block", marginBottom: "5px" }}
+        >
+          Password:
+        </label>
+        <input
+          type="password"
+          id="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          style={{
+            width: "100%",
+            padding: "10px",
+            border: "1px solid #ccc",
+            borderRadius: "6px",
+            fontSize: "16px",
+          }}
+        />
+      </div>
       <button
         type="submit"
         style={{
           width: "100%",
-          padding: "10px",
-          backgroundColor: "#013220",
-          color: "#ffffff",
+          padding: "12px",
+          backgroundColor: "#013220", // Dark green
+          color: "#ffffff", // White text
           border: "none",
-          borderRadius: "4px",
+          borderRadius: "8px", // Rounded corners
+          fontSize: "16px",
+          fontWeight: "bold",
           cursor: "pointer",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Subtle shadow
+          transition: "background-color 0.3s ease, box-shadow 0.3s ease", // Smooth transitions
+        }}
+        onMouseEnter={(e) => {
+          (e.target as HTMLButtonElement).style.backgroundColor = "#016936"; // Hover green
+          (e.target as HTMLButtonElement).style.boxShadow =
+            "0 6px 10px rgba(0, 0, 0, 0.2)"; // Enhanced shadow
+        }}
+        onMouseLeave={(e) => {
+          (e.target as HTMLButtonElement).style.backgroundColor = "#013220"; // Default green
+          (e.target as HTMLButtonElement).style.boxShadow =
+            "0 4px 6px rgba(0, 0, 0, 0.1)"; // Default shadow
         }}
       >
         Sign In
       </button>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
     </form>
   );
 };

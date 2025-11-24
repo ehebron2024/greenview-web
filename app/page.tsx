@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import SignInForm from "@/components/authentication/signInForm";
-import SignUpForm from "@/components/authentication/signUpForm";
 import ProjectGallery from "@/components/projects/projectGallery";
 
 export default function Home() {
