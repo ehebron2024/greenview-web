@@ -32,6 +32,19 @@ export default function Home() {
           textAlign: "center",
         }}
       >
+        {/* Logo Section */}
+        <img
+          src="/images/fulllogo.jpg" // Replace with your logo path
+          alt="GreenView Logo"
+          style={{
+            width: "150px",
+            marginBottom: "20px",
+            display: "block", // Ensures the image behaves like a block element
+            margin: "0 auto", // Centers the image horizontally
+          }}
+        />
+
+        {/* Heading Section */}
         <h1
           style={{
             fontSize: "24px",
@@ -41,6 +54,8 @@ export default function Home() {
         >
           Welcome to GreenView!
         </h1>
+
+        {/* Conditional Rendering for Forms */}
         {!isLoggedIn ? (
           showSignUp ? (
             <>
