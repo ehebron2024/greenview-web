@@ -35,6 +35,7 @@ const SignInForm: React.FC = () => {
       // If successful, the user is signed in
       const userId = userCredential.user.uid; // Get the user's unique ID
       console.log("User signed in successfully:", userCredential.user);
+      console.log("User ID:", userId); // Debugging log
 
       setSuccessMessage(`Welcome back, ${userCredential.user.email}!`);
       setEmail("");
@@ -152,16 +153,6 @@ const SignInForm: React.FC = () => {
           cursor: "pointer",
           boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
           transition: "background-color 0.3s ease, box-shadow 0.3s ease",
-        }}
-        onMouseEnter={(e) => {
-          (e.target as HTMLButtonElement).style.backgroundColor = "#016936";
-          (e.target as HTMLButtonElement).style.boxShadow =
-            "0 6px 10px rgba(0, 0, 0, 0.2)";
-        }}
-        onMouseLeave={(e) => {
-          (e.target as HTMLButtonElement).style.backgroundColor = "#013220";
-          (e.target as HTMLButtonElement).style.boxShadow =
-            "0 4px 6px rgba(0, 0, 0, 0.1)";
         }}
       >
         Sign In
