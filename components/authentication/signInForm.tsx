@@ -1,5 +1,8 @@
+"use client";
+
 import React, { useState } from "react";
-import { auth } from "../../lib/firebase"; // Ensure this file exists and exports 'auth'
+import { useRouter } from "next/navigation"; // Import Next.js router
+import { auth } from "@/lib/firebase"; // Ensure this file exists and exports 'auth'
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 const SignInForm: React.FC = () => {
@@ -8,11 +11,13 @@ const SignInForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission
+  const router = useRouter(); // Initialize Next.js router
 
-    setError(null); // Clear previous errors
-    setSuccessMessage(null); // Clear previous success messages
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setError(null);
+    setSuccessMessage(null);
 
     if (!email || !password) {
       setError("Please enter both email and password.");
@@ -27,20 +32,24 @@ const SignInForm: React.FC = () => {
         password
       );
 
-      // If successful, the user is signed in.
+      // If successful, the user is signed in
+      const userId = userCredential.user.uid; // Get the user's unique ID
       console.log("User signed in successfully:", userCredential.user);
+
       setSuccessMessage(`Welcome back, ${userCredential.user.email}!`);
       setEmail("");
       setPassword("");
+
+      // Navigate to the user's project directory
+      router.push(`/userId/${userId}`);
     } catch (firebaseError: any) {
-      // Catch Firebase-specific errors
+      // Handle Firebase errors
       console.error(
         "Error signing in:",
         firebaseError.code,
         firebaseError.message
       );
 
-      // Provide more user-friendly messages for common Firebase Auth errors
       switch (firebaseError.code) {
         case "auth/user-not-found":
           setError("No account found with this email. Please sign up first.");
@@ -73,7 +82,7 @@ const SignInForm: React.FC = () => {
         padding: "20px",
         border: "1px solid #ccc",
         borderRadius: "8px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
       }}
     >
       <h2
@@ -134,25 +143,25 @@ const SignInForm: React.FC = () => {
         style={{
           width: "100%",
           padding: "12px",
-          backgroundColor: "#013220", // Dark green
-          color: "#ffffff", // White text
+          backgroundColor: "#013220",
+          color: "#ffffff",
           border: "none",
-          borderRadius: "8px", // Rounded corners
+          borderRadius: "8px",
           fontSize: "16px",
           fontWeight: "bold",
           cursor: "pointer",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Subtle shadow
-          transition: "background-color 0.3s ease, box-shadow 0.3s ease", // Smooth transitions
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          transition: "background-color 0.3s ease, box-shadow 0.3s ease",
         }}
         onMouseEnter={(e) => {
-          (e.target as HTMLButtonElement).style.backgroundColor = "#016936"; // Hover green
+          (e.target as HTMLButtonElement).style.backgroundColor = "#016936";
           (e.target as HTMLButtonElement).style.boxShadow =
-            "0 6px 10px rgba(0, 0, 0, 0.2)"; // Enhanced shadow
+            "0 6px 10px rgba(0, 0, 0, 0.2)";
         }}
         onMouseLeave={(e) => {
-          (e.target as HTMLButtonElement).style.backgroundColor = "#013220"; // Default green
+          (e.target as HTMLButtonElement).style.backgroundColor = "#013220";
           (e.target as HTMLButtonElement).style.boxShadow =
-            "0 4px 6px rgba(0, 0, 0, 0.1)"; // Default shadow
+            "0 4px 6px rgba(0, 0, 0, 0.1)";
         }}
       >
         Sign In

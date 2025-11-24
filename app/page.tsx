@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link"; // Import Next.js Link component
 import SignInForm from "@/components/authentication/signInForm";
 import ProjectGallery from "@/components/projects/projectGallery";
 
 export default function Home() {
-  const [showSignUp, setShowSignUp] = useState(false); // Toggle between Sign-In and Sign-Up forms
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
@@ -56,32 +56,12 @@ export default function Home() {
 
         {/* Conditional Rendering for Forms */}
         {!isLoggedIn ? (
-          showSignUp ? (
-            <>
-              <SignUpForm />
-              <p style={{ marginTop: "20px" }}>
-                Already have an account?{" "}
+          <>
+            <SignInForm />
+            <p style={{ marginTop: "20px" }}>
+              Don't have an account?{" "}
+              <Link href="/signup">
                 <button
-                  onClick={() => setShowSignUp(false)}
-                  style={{
-                    color: "#013220",
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                    background: "none",
-                    border: "none",
-                  }}
-                >
-                  Sign In
-                </button>
-              </p>
-            </>
-          ) : (
-            <>
-              <SignInForm />
-              <p style={{ marginTop: "20px" }}>
-                Don't have an account?{" "}
-                <button
-                  onClick={() => setShowSignUp(true)}
                   style={{
                     color: "#013220",
                     textDecoration: "underline",
@@ -92,9 +72,9 @@ export default function Home() {
                 >
                   Sign Up
                 </button>
-              </p>
-            </>
-          )
+              </Link>
+            </p>
+          </>
         ) : (
           <ProjectGallery />
         )}
