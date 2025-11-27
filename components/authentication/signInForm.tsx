@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation"; // Import Next.js router
-import { auth } from "@/lib/firebase"; // Ensure this file exists and exports 'auth'
+import { auth, db } from "@/lib/firebase"; // Ensure this file exists and exports 'auth' and 'db'
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
 const SignInForm: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -36,6 +37,12 @@ const SignInForm: React.FC = () => {
       const userId = userCredential.user.uid; // Get the user's unique ID
       console.log("User signed in successfully:", userCredential.user);
       console.log("User ID:", userId); // Debugging log
+
+      // Save user data to Firestore
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        email: userCredential.user.email,
+        // ...other user data
+      });
 
       setSuccessMessage(`Welcome back, ${userCredential.user.email}!`);
       setEmail("");
