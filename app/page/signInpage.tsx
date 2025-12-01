@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 import { app } from "@/firebase"; // Adjust import if your firebase config is elsewhere
 
 function getFirstNameFromEmail(email: string | null): string {
@@ -12,23 +11,21 @@ function getFirstNameFromEmail(email: string | null): string {
   return firstName.charAt(0).toUpperCase() + firstName.slice(1);
 }
 
-export default function UserPage() {
-  const params = useParams();
-  const userId = params?.userId as string;
+export default function SignInPage() {
   const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchUserEmail() {
-      if (!userId) return;
-      const db = getFirestore(app);
-      const userRef = doc(db, "users", userId);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        setEmail(userSnap.data().email || null);
-      }
+    const auth = getAuth(app);
+    const user = auth.currentUser;
+    if (user) {
+      setEmail(user.email || null);
     }
-    fetchUserEmail();
-  }, [userId]);
+    // Optionally, listen for auth state changes:
+    // const unsubscribe = auth.onAuthStateChanged((user) => {
+    //   setEmail(user?.email || null);
+    // });
+    // return () => unsubscribe();
+  }, []);
 
   const firstName = getFirstNameFromEmail(email);
 

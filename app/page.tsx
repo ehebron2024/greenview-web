@@ -5,6 +5,7 @@ import Link from "next/link"; // Import Next.js Link component
 import { useRouter } from "next/navigation";
 import SignInForm from "@/components/authentication/signInForm";
 import ProjectGallery from "../components/projectGallery";
+import { getAuth } from "firebase/auth";
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -13,7 +14,14 @@ export default function Home() {
   // Callback for successful login
   const handleSignInSuccess = (id: string) => {
     setIsLoggedIn(true);
-    router.push(`/${id}`); // Navigate to /[userId]
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const email = user?.email;
+    if (email) {
+      router.push(`/${id}?email=${encodeURIComponent(email)}`);
+    } else {
+      router.push(`/${id}`);
+    }
   };
 
   return (
