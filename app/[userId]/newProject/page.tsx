@@ -88,8 +88,11 @@ export default function NewProjectPage() {
     }
 
     try {
+      // Use the authenticated user's UID for database writes
+      const userDocId = user.uid;
+
       // Save user data to user document
-      const userRef = doc(db, "users", userId);
+      const userRef = doc(db, "users", userDocId);
       await setDoc(
         userRef,
         {
@@ -102,7 +105,12 @@ export default function NewProjectPage() {
       );
 
       // Save project data to projects subcollection
-      const projectsCollectionRef = collection(db, "users", userId, "projects");
+      const projectsCollectionRef = collection(
+        db,
+        "users",
+        userDocId,
+        "projects"
+      );
       const newProjectRef = await addDoc(projectsCollectionRef, {
         name: projectFormData.name,
         number: projectFormData.number,
@@ -117,7 +125,7 @@ export default function NewProjectPage() {
       setSuccess(true);
 
       setTimeout(() => {
-        router.push(`/${userId}/projects/${newProjectRef.id}`);
+        router.push(`/${userDocId}/projects/${newProjectRef.id}`);
       }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
