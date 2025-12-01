@@ -3,7 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { app } from "@/firebase"; // Adjust import if your firebase config is elsewhere
+// Import your configured Firebase app instance
+import { getAuth } from "firebase/auth";
+import { db, app } from "@/lib/firebase";
 
 function getFirstNameFromEmail(email: string | null): string {
   if (!email) return "User";

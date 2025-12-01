@@ -1,15 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link"; // Import Next.js Link component
 import { useRouter } from "next/navigation";
 import SignInForm from "@/components/authentication/signInForm";
-import ProjectGallery from "../components/projectGallery";
+import ProjectGallery from "@/components/projectGallery";
+// Ensure Firebase is initialized in the "@/lib/firebase" module before calling getAuth
 import { getAuth } from "firebase/auth";
+import { db } from "@/lib/firebase";
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+
+  // Check if user is already signed in on mount
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsLoggedIn(!!user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Callback for successful login
   const handleSignInSuccess = (id: string) => {
@@ -18,9 +29,9 @@ export default function Home() {
     const user = auth.currentUser;
     const email = user?.email;
     if (email) {
-      router.push(`/${id}?email=${encodeURIComponent(email)}`);
+      router.push(`/${id}/userProjects?email=${encodeURIComponent(email)}`);
     } else {
-      router.push(`/${id}`);
+      router.push(`/${id}/userProjects`);
     }
   };
 
