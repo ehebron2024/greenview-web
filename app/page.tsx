@@ -13,7 +13,7 @@ export default function Home() {
   // Callback for successful login
   const handleSignInSuccess = (id: string) => {
     setIsLoggedIn(true);
-    router.push(`/userId/${id}`);
+    router.push(`/${id}`); // Navigate to /[userId]
   };
 
   return (
