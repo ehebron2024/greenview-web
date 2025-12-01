@@ -2,11 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link"; // Import Next.js Link component
+import { useRouter } from "next/navigation";
 import SignInForm from "@/components/authentication/signInForm";
-import ProjectGallery from "@/components/projects/projectGallery";
+import ProjectGallery from "../components/projectGallery";
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+  // You can use router.push("/some-path") or router.replace("/some-path")
 
   return (
     <div
