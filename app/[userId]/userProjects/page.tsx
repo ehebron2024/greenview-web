@@ -1,25 +1,31 @@
 // src/components/UserProjects.tsx
 
+"use client";
+
 import React, { useState, useEffect } from "react";
-import { db } from "@/lib/firebase";
+import { db, app } from "@/lib/firebase";
 import { collection, onSnapshot, DocumentData } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
-interface UserProjectsProps {
-  userId: string;
-}
+interface UserProjectsProps {}
 
-const UserProjects: React.FC<UserProjectsProps> = ({ userId }) => {
+const UserProjects: React.FC<UserProjectsProps> = () => {
+  const router = useRouter();
   const [projects, setProjects] = useState<DocumentData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!userId) {
-      setProjects([]);
-      setLoading(false);
+    const auth = getAuth(app);
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      router.push("/");
       return;
     }
 
+    const userId = currentUser.uid;
     const userProjectsCollectionRef = collection(
       db,
       "users",
@@ -45,10 +51,9 @@ const UserProjects: React.FC<UserProjectsProps> = ({ userId }) => {
     );
 
     return () => unsubscribe();
-  }, [userId]);
+  }, [router]);
 
   if (loading) return <p>Loading user projects...</p>;
-  if (!userId) return <p>Please sign in to view your projects.</p>;
 
   return (
     <div>

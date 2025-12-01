@@ -11,6 +11,7 @@ import { db } from "@/lib/firebase";
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
   // Check if user is already signed in on mount
@@ -18,13 +19,22 @@ export default function Home() {
     const auth = getAuth();
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setIsLoggedIn(!!user);
+      setUserId(user?.uid ?? null);
     });
     return () => unsubscribe();
   }, []);
 
+  // Redirect if logged in
+  useEffect(() => {
+    if (isLoggedIn && userId) {
+      router.push(`/${userId}`);
+    }
+  }, [isLoggedIn, userId, router]);
+
   // Callback for successful login
   const handleSignInSuccess = (id: string) => {
     setIsLoggedIn(true);
+    setUserId(id);
     const auth = getAuth();
     const user = auth.currentUser;
     const email = user?.email;
@@ -60,7 +70,7 @@ export default function Home() {
       >
         {/* Logo Section */}
         <img
-          src="/images/fulllogo.jpg" // Replace with your logo path
+          src="./public/images/fulllogo.jpg" // Replace with your logo path
           alt="GreenView Logo"
           style={{
             width: "150px",
@@ -99,9 +109,7 @@ export default function Home() {
               </Link>
             </p>
           </>
-        ) : (
-          <p style={{ marginTop: "20px" }}>You are logged in!</p>
-        )}
+        ) : null}
       </div>
     </div>
   );

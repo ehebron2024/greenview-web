@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
-// Import your configured Firebase app instance
+import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { db, app } from "@/lib/firebase";
+import { Poppins } from "next/font/google";
+
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600", "700"] });
 
 function getFirstNameFromEmail(email: string | null): string {
   if (!email) return "User";
@@ -15,27 +17,42 @@ function getFirstNameFromEmail(email: string | null): string {
 }
 
 export default function UserPage() {
-  const params = useParams();
-  const userId = params?.userId as string;
+  const router = useRouter();
   const [email, setEmail] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    const auth = getAuth(app);
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      router.push("/login");
+      return;
+    }
+
+    setUserId(currentUser.uid);
+
     async function fetchUserEmail() {
-      if (!userId) return;
-      const db = getFirestore(app);
-      const userRef = doc(db, "users", userId);
+      const userRef = doc(db, "users", currentUser.uid);
       const userSnap = await getDoc(userRef);
       if (userSnap.exists()) {
         setEmail(userSnap.data().email || null);
       }
     }
     fetchUserEmail();
-  }, [userId]);
+  }, [router]);
 
   const firstName = getFirstNameFromEmail(email);
 
+  const handleProjectsClick = () => {
+    if (userId) {
+      router.push(`/${userId}/userProjects`);
+    }
+  };
+
   return (
     <div
+      className={poppins.className}
       style={{
         minHeight: "100vh",
         display: "flex",
@@ -46,8 +63,64 @@ export default function UserPage() {
         color: "#013220",
       }}
     >
-      <h1>{email ? `Welcome, ${firstName}!` : "Loading..."}</h1>
-      {/* You can add more personalized content here */}
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "400px",
+          padding: "20px",
+          backgroundColor: "#ffffff",
+          borderRadius: "8px",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          textAlign: "center",
+        }}
+      >
+        {/* Logo Section */}
+        <img
+          src="/images/fulllogo.jpg"
+          alt="GreenView Logo"
+          style={{
+            width: "150px",
+            marginBottom: "20px",
+            display: "block",
+            margin: "0 auto",
+          }}
+        />
+
+        {/* Heading Section */}
+        <h1
+          style={{
+            fontSize: "24px",
+            fontWeight: "bold",
+            marginBottom: "20px",
+          }}
+        >
+          {email ? `Welcome, ${firstName}!` : "Loading..."}
+        </h1>
+
+        {/* Projects Button */}
+        <button
+          onClick={handleProjectsClick}
+          style={{
+            backgroundColor: "#013220",
+            color: "#ffffff",
+            padding: "10px 24px",
+            fontSize: "16px",
+            fontWeight: "600",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            transition: "background-color 0.3s ease",
+          }}
+          onMouseOver={(e) =>
+            (e.currentTarget.style.backgroundColor = "#0a1f17")
+          }
+          onMouseOut={(e) =>
+            (e.currentTarget.style.backgroundColor = "#013220")
+          }
+        >
+          View Projects
+        </button>
+      </div>
     </div>
   );
 }
