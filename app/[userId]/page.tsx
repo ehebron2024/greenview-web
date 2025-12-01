@@ -33,10 +33,12 @@ export default function UserPage() {
     setUserId(currentUser.uid);
 
     async function fetchUserEmail() {
-      const userRef = doc(db, "users", currentUser.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        setEmail(userSnap.data().email || null);
+      if (currentUser) {
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          setEmail(userSnap.data().email || null);
+        }
       }
     }
     fetchUserEmail();
@@ -47,6 +49,12 @@ export default function UserPage() {
   const handleProjectsClick = () => {
     if (userId) {
       router.push(`/${userId}/userProjects`);
+    }
+  };
+
+  const handleNewProjectClick = () => {
+    if (userId) {
+      router.push(`/${userId}/newProject`);
     }
   };
 
@@ -119,6 +127,31 @@ export default function UserPage() {
           }
         >
           View Projects
+        </button>
+
+        {/* New Project Button */}
+        <button
+          onClick={handleNewProjectClick}
+          style={{
+            backgroundColor: "#013220",
+            color: "#ffffff",
+            padding: "10px 24px",
+            fontSize: "16px",
+            fontWeight: "600",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            transition: "background-color 0.3s ease",
+            marginTop: "12px",
+          }}
+          onMouseOver={(e) =>
+            (e.currentTarget.style.backgroundColor = "#0a1f17")
+          }
+          onMouseOut={(e) =>
+            (e.currentTarget.style.backgroundColor = "#013220")
+          }
+        >
+          Create New Project
         </button>
       </div>
     </div>

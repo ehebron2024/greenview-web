@@ -18,10 +18,8 @@ function getFirstNameFromEmail(email: string | null): string {
 
 export default function UserLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ userId: string }>;
 }) {
   const router = useRouter();
   const [firstName, setFirstName] = useState<string>("User");
@@ -29,29 +27,42 @@ export default function UserLayout({
 
   useEffect(() => {
     const auth = getAuth(app);
-    const currentUser = auth.currentUser;
 
-    if (!currentUser) {
-      router.push("/");
-      return;
-    }
-
-    async function fetchUserName() {
-      const userRef = doc(db, "users", currentUser.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        const email = userSnap.data().email || null;
-        setFirstName(getFirstNameFromEmail(email));
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      if (!currentUser) {
+        router.push("/");
+        setIsLoading(false);
+        return;
       }
-      setIsLoading(false);
-    }
-    fetchUserName();
+
+      async function fetchUserName() {
+        if (!currentUser) return;
+        try {
+          const userRef = doc(db, "users", currentUser.uid);
+          const userSnap = await getDoc(userRef);
+          const email = userSnap.data()?.email ?? null;
+          if (email) {
+            setFirstName(getFirstNameFromEmail(email));
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+      fetchUserName();
+    });
+
+    return () => unsubscribe();
   }, [router]);
 
   if (isLoading) return null;
 
   return (
-    <div className={poppins.className}>
+    <div
+      className={poppins.className}
+      style={{ backgroundColor: "#f5f5dc", minHeight: "100vh" }}
+    >
       <header
         style={{
           padding: "20px",
@@ -63,7 +74,7 @@ export default function UserLayout({
       >
         <h2 style={{ margin: 0, fontSize: "1.5rem" }}>Welcome, {firstName}!</h2>
       </header>
-      <main>{children}</main>
+      <main style={{ padding: "20px" }}>{children}</main>
     </div>
   );
 }

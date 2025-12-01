@@ -15,6 +15,7 @@ const UserProjects: React.FC<UserProjectsProps> = () => {
   const [projects, setProjects] = useState<DocumentData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const auth = getAuth(app);
@@ -26,6 +27,7 @@ const UserProjects: React.FC<UserProjectsProps> = () => {
     }
 
     const userId = currentUser.uid;
+    setUserId(userId);
     const userProjectsCollectionRef = collection(
       db,
       "users",
@@ -53,6 +55,12 @@ const UserProjects: React.FC<UserProjectsProps> = () => {
     return () => unsubscribe();
   }, [router]);
 
+  const handleNewProjectClick = () => {
+    if (userId) {
+      router.push(`/${userId}/newProject`);
+    }
+  };
+
   if (loading) return <p>Loading user projects...</p>;
 
   return (
@@ -71,6 +79,22 @@ const UserProjects: React.FC<UserProjectsProps> = () => {
           ))}
         </ul>
       )}
+      <button
+        onClick={handleNewProjectClick}
+        style={{
+          backgroundColor: "#013220",
+          color: "#ffffff",
+          padding: "10px 24px",
+          fontSize: "16px",
+          fontWeight: "600",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer",
+          marginTop: "20px",
+        }}
+      >
+        Create New Project
+      </button>
     </div>
   );
 };
