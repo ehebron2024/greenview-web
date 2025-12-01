@@ -9,7 +9,12 @@ import ProjectGallery from "../components/projectGallery";
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
-  // You can use router.push("/some-path") or router.replace("/some-path")
+
+  // Callback for successful login
+  const handleSignInSuccess = (id: string) => {
+    setIsLoggedIn(true);
+    router.push(`/userId/${id}`);
+  };
 
   return (
     <div
@@ -60,26 +65,23 @@ export default function Home() {
         {/* Conditional Rendering for Forms */}
         {!isLoggedIn ? (
           <>
-            <SignInForm />
+            <SignInForm onSignInSuccess={handleSignInSuccess} />
             <p style={{ marginTop: "20px" }}>
               Don't have an account?{" "}
-              <Link href="/signup">
-                <button
-                  style={{
-                    color: "#013220",
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                    background: "none",
-                    border: "none",
-                  }}
-                >
-                  Sign Up
-                </button>
+              <Link
+                href="/signup"
+                style={{
+                  color: "#013220",
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                }}
+              >
+                Sign Up
               </Link>
             </p>
           </>
         ) : (
-          <ProjectGallery />
+          <p style={{ marginTop: "20px" }}>You are logged in!</p>
         )}
       </div>
     </div>

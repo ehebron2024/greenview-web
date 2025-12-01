@@ -24,8 +24,10 @@ export default function NewProjectPage() {
     setLoading(true);
     setError("");
     try {
-      // Replace with actual userId from route or context
-      const userId = "currentUserId"; // TODO: get from route or auth
+      const userId = auth.currentUser?.uid; // Get userId from Firebase auth
+      if (!userId) {
+        throw new Error("User not authenticated");
+      }
       const newProjectRef = doc(collection(db, "users", userId, "projects"));
       await setDoc(newProjectRef, {
         name,

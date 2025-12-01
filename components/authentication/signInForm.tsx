@@ -6,7 +6,12 @@ import { auth, db } from "@/lib/firebase"; // Ensure this file exists and export
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
-const SignInForm: React.FC = () => {
+// Add prop type for onSignInSuccess
+interface SignInFormProps {
+  onSignInSuccess?: (userId: string) => void;
+}
+
+const SignInForm: React.FC<SignInFormProps> = ({ onSignInSuccess }) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -48,8 +53,12 @@ const SignInForm: React.FC = () => {
       setEmail("");
       setPassword("");
 
-      // Navigate to the user's project directory
-      router.push(`/userId/${userId}`);
+      // Call parent callback if provided
+      if (onSignInSuccess) {
+        onSignInSuccess(userId);
+      }
+      // Optionally, you can keep router.push here for fallback navigation
+      // router.push(`/userId/${userId}`);
     } catch (firebaseError: any) {
       // Handle Firebase errors
       console.error(
