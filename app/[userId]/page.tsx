@@ -84,7 +84,7 @@ export default function UserPage() {
       >
         {/* Logo Section */}
         <img
-          src="/images/fulllogo.jpg"
+          src="/images/fulllogo.png"
           alt="GreenView Logo"
           style={{
             width: "150px",

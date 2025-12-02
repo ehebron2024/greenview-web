@@ -70,7 +70,7 @@ export default function Home() {
       >
         {/* Logo Section */}
         <img
-          src="./public/images/fulllogo.jpg" // Replace with your logo path
+          src="./print_transparent.svg" // Replace with your logo path
           alt="GreenView Logo"
           style={{
             width: "150px",

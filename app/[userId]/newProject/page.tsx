@@ -125,7 +125,7 @@ export default function NewProjectPage() {
       setSuccess(true);
 
       setTimeout(() => {
-        router.push(`/${userDocId}/projects/${newProjectRef.id}`);
+        router.push(`/${userDocId}/userProjects`);
       }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");

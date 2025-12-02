@@ -6,6 +6,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Poppins } from "next/font/google";
+import Image from "next/image";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600", "700"] });
 
@@ -61,8 +62,24 @@ export default function UserLayout({
   return (
     <div
       className={poppins.className}
-      style={{ backgroundColor: "#f5f5dc", minHeight: "100vh" }}
+      style={{
+        backgroundColor: "#f5f5dc",
+        minHeight: "100vh",
+        position: "relative",
+      }}
     >
+      <Image
+        src="/context/fulllogo_transparent_nobuffer.png"
+        alt="GreenView Logo"
+        width={60}
+        height={60}
+        style={{
+          position: "fixed",
+          top: "20px",
+          left: "20px",
+          zIndex: 1000,
+        }}
+      />
       <header
         style={{
           padding: "20px",

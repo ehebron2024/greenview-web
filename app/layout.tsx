@@ -23,7 +23,20 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{ position: "relative" }}
       >
+        <img
+          src="./print_transparent.svg"
+          alt="GreenView Logo"
+          style={{
+            position: "fixed",
+            top: "20px",
+            left: "20px",
+            zIndex: 1000,
+            width: "120px",
+            height: "120px",
+          }}
+        />
         {children}
       </body>
     </html>
