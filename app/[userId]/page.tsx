@@ -26,7 +26,7 @@ export default function UserPage() {
     const currentUser = auth.currentUser;
 
     if (!currentUser) {
-      router.push("/login");
+      router.push("/");
       return;
     }
 

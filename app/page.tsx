@@ -18,30 +18,30 @@ export default function Home() {
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      setIsLoggedIn(!!user);
-      setUserId(user?.uid ?? null);
+      if (user) {
+        setIsLoggedIn(true);
+        setUserId(user.uid);
+      } else {
+        setIsLoggedIn(false);
+        setUserId(null);
+      }
     });
     return () => unsubscribe();
   }, []);
-
-  // Redirect if logged in
-  useEffect(() => {
-    if (isLoggedIn && userId) {
-      router.push(`/${userId}`);
-    }
-  }, [isLoggedIn, userId, router]);
 
   // Callback for successful login
   const handleSignInSuccess = (id: string) => {
     setIsLoggedIn(true);
     setUserId(id);
+    router.push(`/${id}`);
+  };
+
+  const handleViewProjects = () => {
     const auth = getAuth();
-    const user = auth.currentUser;
-    const email = user?.email;
-    if (email) {
-      router.push(`/${id}/userProjects?email=${encodeURIComponent(email)}`);
-    } else {
-      router.push(`/${id}/userProjects`);
+    const currentUser = auth.currentUser;
+
+    if (currentUser && userId) {
+      router.push(`/${userId}`);
     }
   };
 
@@ -109,7 +109,22 @@ export default function Home() {
               </Link>
             </p>
           </>
-        ) : null}
+        ) : (
+          <button
+            onClick={handleViewProjects}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: "#013220",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "16px",
+            }}
+          >
+            View My Projects
+          </button>
+        )}
       </div>
     </div>
   );

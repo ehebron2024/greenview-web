@@ -1,12 +1,18 @@
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { auth } from "../../lib/firebase"; // Ensure this file exists and exports 'auth'
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
-const SignUpForm: React.FC = () => {
+interface SignUpFormProps {
+  onSignUpSuccess?: (userId: string) => void;
+}
+
+const SignUpForm: React.FC<SignUpFormProps> = ({ onSignUpSuccess }) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +38,11 @@ const SignUpForm: React.FC = () => {
       setSuccessMessage(`Welcome, ${userCredential.user.email}!`);
       setEmail("");
       setPassword("");
+
+      // Call parent callback if provided
+      if (onSignUpSuccess) {
+        onSignUpSuccess(userCredential.user.uid);
+      }
     } catch (firebaseError: any) {
       // Handle Firebase errors
       console.error(

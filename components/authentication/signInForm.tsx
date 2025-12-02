@@ -57,8 +57,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSignInSuccess }) => {
       if (onSignInSuccess) {
         onSignInSuccess(userId);
       }
-      // Optionally, you can keep router.push here for fallback navigation
-      router.push(`/userId/${userId}`);
+      // Remove fallback navigation - callback handles it
     } catch (firebaseError: any) {
       // Handle Firebase errors
       console.error(
