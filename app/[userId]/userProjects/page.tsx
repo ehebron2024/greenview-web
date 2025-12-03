@@ -32,7 +32,6 @@ const UserProjects: React.FC<UserProjectsProps> = () => {
 
   return (
     <div>
-      <h2>Projects</h2>
       <ProjectGallery />
       <button
         onClick={handleNewProjectClick}

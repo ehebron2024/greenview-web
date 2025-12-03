@@ -6,7 +6,6 @@ import { doc, getDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Poppins } from "next/font/google";
-import Image from "next/image";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600", "700"] });
 
@@ -68,17 +67,6 @@ export default function UserLayout({
         position: "relative",
       }}
     >
-      <header
-        style={{
-          padding: "20px",
-          background: "#f5f5dc",
-          color: "#013220",
-          textAlign: "center",
-          borderBottom: "2px solid #2e7d32",
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: "1.5rem" }}>Welcome, {firstName}!</h2>
-      </header>
       <main style={{ padding: "20px" }}>{children}</main>
     </div>
   );

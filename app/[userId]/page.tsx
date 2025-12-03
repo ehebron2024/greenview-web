@@ -84,7 +84,7 @@ export default function UserPage() {
       >
         {/* Logo Section */}
         <img
-          src="./public/print_transparent.svg"
+          src="./print_transparent.svg"
           alt="GreenView Logo"
           style={{
             width: "150px",
@@ -93,17 +93,6 @@ export default function UserPage() {
             margin: "0 auto",
           }}
         />
-
-        {/* Heading Section */}
-        <h1
-          style={{
-            fontSize: "24px",
-            fontWeight: "bold",
-            marginBottom: "20px",
-          }}
-        >
-          {email ? `Welcome, ${firstName}!` : "Loading..."}
-        </h1>
 
         {/* Projects Button */}
         <button
