@@ -15,10 +15,13 @@ interface UserFormData {
 
 interface ProjectFormData {
   name: string;
-  number: string;
+  contact: string;
   dateStarted: string;
   status: string;
   roomCount: number;
+  budget: string;
+  description: string;
+  location: string;
 }
 
 export default function NewProjectPage() {
@@ -38,10 +41,13 @@ export default function NewProjectPage() {
 
   const [projectFormData, setProjectFormData] = useState<ProjectFormData>({
     name: "",
-    number: "",
+    contact: "",
     dateStarted: "",
     status: "Planning",
     roomCount: 0,
+    budget: "",
+    description: "",
+    location: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -73,12 +79,15 @@ export default function NewProjectPage() {
   };
 
   const handleProjectChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setProjectFormData((prev) => ({
       ...prev,
-      [name]: name === "roomCount" ? parseInt(value) : value,
+      [name]:
+        name === "roomCount" ? (value === "" ? 0 : parseInt(value)) : value,
     }));
   };
 
@@ -89,6 +98,12 @@ export default function NewProjectPage() {
 
     if (!user) {
       setError("User not authenticated");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!projectFormData.dateStarted) {
+      setError("Please select a start date");
       setIsLoading(false);
       return;
     }
@@ -116,10 +131,13 @@ export default function NewProjectPage() {
       const projectRef = doc(db, "users", userDocId, "projects", userDocId);
       await setDoc(projectRef, {
         name: projectFormData.name,
-        number: projectFormData.number,
+        contact: projectFormData.contact,
         status: projectFormData.status,
         startDate: new Date(projectFormData.dateStarted),
         roomCount: projectFormData.roomCount,
+        budget: projectFormData.budget,
+        description: projectFormData.description,
+        location: projectFormData.location,
         createdAt: now,
         lastUpdated: now,
         userId: userDocId,
@@ -278,23 +296,83 @@ export default function NewProjectPage() {
             />
           </div>
 
-          {/* Project Number */}
+          {/* Project Contact */}
           <div>
             <label
-              htmlFor="projectNumber"
+              htmlFor="projectContact"
               className="block text-sm font-medium text-gray-700"
             >
-              Project Number *
+              Project Contact *
             </label>
             <input
               type="text"
-              id="projectNumber"
-              name="number"
-              value={projectFormData.number}
+              id="projectContact"
+              name="contact"
+              value={projectFormData.contact}
               onChange={handleProjectChange}
               required
               className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter project number"
+              placeholder="Enter project contact"
+            />
+          </div>
+
+          {/* Project Location */}
+          <div>
+            <label
+              htmlFor="location"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Location *
+            </label>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              value={projectFormData.location}
+              onChange={handleProjectChange}
+              required
+              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="Enter project location/address"
+            />
+          </div>
+
+          {/* Project Budget */}
+          <div>
+            <label
+              htmlFor="budget"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Budget *
+            </label>
+            <input
+              type="number"
+              id="budget"
+              name="budget"
+              value={projectFormData.budget}
+              onChange={handleProjectChange}
+              required
+              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="Enter project budget"
+            />
+          </div>
+
+          {/* Project Description */}
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Description *
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={projectFormData.description}
+              onChange={handleProjectChange}
+              required
+              rows={4}
+              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="Enter project description"
             />
           </div>
 
@@ -352,7 +430,7 @@ export default function NewProjectPage() {
               type="number"
               id="roomCount"
               name="roomCount"
-              value={projectFormData.roomCount}
+              value={projectFormData.roomCount || ""}
               onChange={handleProjectChange}
               required
               min="0"
