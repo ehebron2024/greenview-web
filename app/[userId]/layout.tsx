@@ -68,18 +68,6 @@ export default function UserLayout({
         position: "relative",
       }}
     >
-      <Image
-        src="/context/fulllogo_transparent_nobuffer.png"
-        alt="GreenView Logo"
-        width={60}
-        height={60}
-        style={{
-          position: "fixed",
-          top: "20px",
-          left: "20px",
-          zIndex: 1000,
-        }}
-      />
       <header
         style={{
           padding: "20px",

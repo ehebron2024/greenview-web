@@ -46,6 +46,7 @@ const UserProjects: React.FC<UserProjectsProps> = () => {
           borderRadius: "6px",
           cursor: "pointer",
           marginTop: "20px",
+          marginLeft: "12px",
         }}
       >
         Create New Project

@@ -84,7 +84,7 @@ export default function UserPage() {
       >
         {/* Logo Section */}
         <img
-          src="/images/fulllogo.png"
+          src="./public/print_transparent.svg"
           alt="GreenView Logo"
           style={{
             width: "150px",
@@ -143,6 +143,7 @@ export default function UserPage() {
             cursor: "pointer",
             transition: "background-color 0.3s ease",
             marginTop: "12px",
+            marginLeft: "12px",
           }}
           onMouseOver={(e) =>
             (e.currentTarget.style.backgroundColor = "#0a1f17")

@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase"; // Ensure this file exists and exports 'auth' and 'db'
 import { collection, onSnapshot, DocumentData } from "firebase/firestore";
 import { User } from "firebase/auth";
 
 const ProjectGallery: React.FC = () => {
+  const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<DocumentData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     // Observe changes in the user's sign-in state
@@ -60,6 +65,15 @@ const ProjectGallery: React.FC = () => {
     };
   }, [currentUser]);
 
+  const handleProjectClick = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    if (currentUser) {
+      router.push(
+        `/${currentUser.uid}/userProjects/projectInfo?projectId=${projectId}`
+      );
+    }
+  };
+
   if (loading) {
     return <p>Loading projects...</p>;
   }
@@ -69,7 +83,7 @@ const ProjectGallery: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "20px", marginBottom: "30px" }}>
       <h2
         style={{ color: "#013220", fontWeight: "bold", marginBottom: "20px" }}
       >
@@ -89,22 +103,26 @@ const ProjectGallery: React.FC = () => {
           {projects.map((project) => (
             <div
               key={project.id}
+              onClick={() => handleProjectClick(project.id)}
               style={{
                 border: "1px solid #ccc",
                 borderRadius: "8px",
                 overflow: "hidden",
                 boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                cursor: "pointer",
+                transition: "transform 0.2s, boxShadow 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-4px)";
+                e.currentTarget.style.boxShadow =
+                  "0 8px 12px rgba(0, 0, 0, 0.15)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 6px rgba(0, 0, 0, 0.1)";
               }}
             >
-              <img
-                src={project.imageUrl}
-                alt={project.name}
-                style={{
-                  width: "100%",
-                  height: "150px",
-                  objectFit: "cover",
-                }}
-              />
               <div style={{ padding: "10px" }}>
                 <h3 style={{ fontSize: "18px", fontWeight: "bold" }}>
                   {project.name}
