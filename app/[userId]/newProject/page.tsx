@@ -104,24 +104,17 @@ export default function NewProjectPage() {
         { merge: true }
       );
 
-      // Save project data to projects subcollection
-      const projectsCollectionRef = collection(
-        db,
-        "users",
-        userDocId,
-        "projects"
-      );
-      const newProjectRef = await addDoc(projectsCollectionRef, {
+      // Save project data with document ID equal to userId
+      const projectRef = doc(db, "projects", userDocId);
+      await setDoc(projectRef, {
         name: projectFormData.name,
         number: projectFormData.number,
         dateStarted: projectFormData.dateStarted,
         createdAt: new Date(),
+        userId: userDocId,
       });
 
-      console.log(
-        "User data updated and project added with ID: ",
-        newProjectRef.id
-      );
+      console.log("User data updated and project created with ID: ", userDocId);
       setSuccess(true);
 
       setTimeout(() => {

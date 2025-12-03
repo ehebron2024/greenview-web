@@ -49,76 +49,77 @@ export default function ProjectInfoPage() {
       return;
     }
 
-    if (currentUser !== userId) {
-      setError("Unauthorized: You do not have access to this project");
-      setLoading(false);
-      return;
-    }
-
     const fetchProject = async () => {
       try {
+        // Check if userId matches projectId
+        if (projectId !== userId) {
+          setError("This project does not belong to you");
+          setLoading(false);
+          return;
+        }
+
         const docRef = doc(db, "projects", projectId);
-        const docSnap = await getDoc(docRef);projects", projectId);
+        const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           const projectData = { id: docSnap.id, ...docSnap.data() } as Project;
-          const projectData = { id: docSnap.id, ...docSnap.data() } as Project;
-          setProject(projectData);          if (projectData.userId !== currentUser) {
-        } else {es not belong to you");
+          setProject(projectData);
+        } else {
           setError("Project not found");
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        setError(`Failed to load project: ${errorMessage}`);          setProject(projectData);
-        console.error('Project fetch error:', err);
-      } finally {or("Project not found");
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error";
+        setError(`Failed to load project: ${errorMessage}`);
+        console.error("Project fetch error:", err);
+      } finally {
         setLoading(false);
-      }atch (err) {
-    };led to load project");
+      }
+    };
 
     fetchProject();
-  }, [projectId, currentUser, userId]);g(false);
+  }, [projectId, currentUser, userId]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
-  if (!project) return <div>No project data</div>;    fetchProject();
-rrentUser, userId]);
+  if (!project) return <div>No project data</div>;
+
   return (
-    <div>  if (loading) return <div>Loading...</div>;
-      <h1>{project.name}</h1>>;
-      <div>iv>;
+    <div>
+      <h1>{project.name}</h1>
+      <div>
         <p>
-          <strong>Status:</strong> {project.status}  return (
+          <strong>Status:</strong> {project.status}
         </p>
-        {project.description && (>{project.name}</h1>
+        {project.description && (
           <p>
             <strong>Description:</strong> {project.description}
-          </p>strong>Status:</strong> {project.status}
-        )}
-        {project.location && (ject.description && (
-          <p>
-            <strong>Location:</strong> {project.location}strong>Description:</strong> {project.description}
           </p>
         )}
-        {project.clientName && (roject.location && (
+        {project.location && (
           <p>
-            <strong>Client:</strong> {project.clientName}strong>Location:</strong> {project.location}
+            <strong>Location:</strong> {project.location}
           </p>
         )}
-        {project.budget && (roject.clientName && (
+        {project.clientName && (
           <p>
-            <strong>Budget:</strong> ${project.budget.toLocaleString()}strong>Client:</strong> {project.clientName}
+            <strong>Client:</strong> {project.clientName}
           </p>
         )}
-        <p>roject.budget && (
+        {project.budget && (
+          <p>
+            <strong>Budget:</strong> ${project.budget.toLocaleString()}
+          </p>
+        )}
+        <p>
           <strong>Created:</strong>{" "}
-          {project.createdAt?.toDate?.().toLocaleDateString()}strong>Budget:</strong> ${project.budget.toLocaleString()}
+          {project.createdAt?.toDate?.().toLocaleDateString()}
         </p>
         <p>
-          <strong>Last Updated:</strong>{" "}>
-          {project.lastUpdated?.toDate?.().toLocaleDateString()}strong>Created:</strong>{" "}
-        </p>.toLocaleDateString()}
+          <strong>Last Updated:</strong>{" "}
+          {project.lastUpdated?.toDate?.().toLocaleDateString()}
+        </p>
       </div>
     </div>
-  );strong>Last Updated:</strong>{" "}
-}LocaleDateString()}
+  );
+}
