@@ -10,14 +10,16 @@ import { onAuthStateChanged } from "firebase/auth";
 interface Project {
   id: string;
   name: string;
+  number?: string;
   description?: string;
   createdAt: any;
   lastUpdated: any;
   status: string;
-  clientId?: string;
-  clientName?: string;
   budget?: number;
+  contact?: string;
   location?: string;
+  startDate?: any;
+  userId?: string;
 }
 
 export default function ProjectInfoPage() {
@@ -58,7 +60,7 @@ export default function ProjectInfoPage() {
           return;
         }
 
-        const docRef = doc(db, "projects", projectId);
+        const docRef = doc(db, "users", userId, "projects", projectId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -84,41 +86,87 @@ export default function ProjectInfoPage() {
   if (error) return <div>Error: {error}</div>;
   if (!project) return <div>No project data</div>;
 
+  const formatDate = (date: any) => {
+    if (!date) return "N/A";
+    const dateObj = date.toDate ? date.toDate() : new Date(date);
+    return dateObj.toLocaleDateString();
+  };
+
   return (
-    <div>
-      <h1>{project.name}</h1>
-      <div>
-        <p>
-          <strong>Status:</strong> {project.status}
-        </p>
-        {project.description && (
-          <p>
-            <strong>Description:</strong> {project.description}
-          </p>
-        )}
-        {project.location && (
-          <p>
-            <strong>Location:</strong> {project.location}
-          </p>
-        )}
-        {project.clientName && (
-          <p>
-            <strong>Client:</strong> {project.clientName}
-          </p>
-        )}
-        {project.budget && (
-          <p>
-            <strong>Budget:</strong> ${project.budget.toLocaleString()}
-          </p>
-        )}
-        <p>
-          <strong>Created:</strong>{" "}
-          {project.createdAt?.toDate?.().toLocaleDateString()}
-        </p>
-        <p>
-          <strong>Last Updated:</strong>{" "}
-          {project.lastUpdated?.toDate?.().toLocaleDateString()}
-        </p>
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">
+          {project.name}
+        </h1>
+
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm font-medium text-gray-600">Status</p>
+            <p className="text-lg text-gray-900">{project.status}</p>
+          </div>
+
+          {project.number && (
+            <div>
+              <p className="text-sm font-medium text-gray-600">
+                Project Number
+              </p>
+              <p className="text-lg text-gray-900">{project.number}</p>
+            </div>
+          )}
+
+          {project.description && (
+            <div>
+              <p className="text-sm font-medium text-gray-600">Description</p>
+              <p className="text-lg text-gray-900">{project.description}</p>
+            </div>
+          )}
+
+          {project.location && (
+            <div>
+              <p className="text-sm font-medium text-gray-600">Location</p>
+              <p className="text-lg text-gray-900">{project.location}</p>
+            </div>
+          )}
+
+          {project.contact && (
+            <div>
+              <p className="text-sm font-medium text-gray-600">Contact</p>
+              <p className="text-lg text-gray-900">{project.contact}</p>
+            </div>
+          )}
+
+          {project.budget && (
+            <div>
+              <p className="text-sm font-medium text-gray-600">Budget</p>
+              <p className="text-lg text-gray-900">
+                ${project.budget.toLocaleString()}
+              </p>
+            </div>
+          )}
+
+          {project.startDate && (
+            <div>
+              <p className="text-sm font-medium text-gray-600">Start Date</p>
+              <p className="text-lg text-gray-900">
+                {formatDate(project.startDate)}
+              </p>
+            </div>
+          )}
+
+          <div>
+            <p className="text-sm font-medium text-gray-600">Created</p>
+            <p className="text-lg text-gray-900">
+              {formatDate(project.createdAt)}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm font-medium text-gray-600">Last Updated</p>
+            <p className="text-lg text-gray-900">
+              {formatDate(project.lastUpdated)}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

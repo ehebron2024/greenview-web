@@ -10,13 +10,15 @@ interface UserFormData {
   email: string;
   name: string;
   number: string;
-  projectName: string;
+  city: string;
 }
 
 interface ProjectFormData {
   name: string;
   number: string;
   dateStarted: string;
+  status: string;
+  roomCount: number;
 }
 
 export default function NewProjectPage() {
@@ -31,13 +33,15 @@ export default function NewProjectPage() {
     email: "",
     name: "",
     number: "",
-    projectName: "",
+    city: "",
   });
 
   const [projectFormData, setProjectFormData] = useState<ProjectFormData>({
     name: "",
     number: "",
     dateStarted: "",
+    status: "Planning",
+    roomCount: 0,
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -68,11 +72,13 @@ export default function NewProjectPage() {
     }));
   };
 
-  const handleProjectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProjectChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setProjectFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "roomCount" ? parseInt(value) : value,
     }));
   };
 
@@ -88,8 +94,8 @@ export default function NewProjectPage() {
     }
 
     try {
-      // Use the authenticated user's UID for database writes
       const userDocId = user.uid;
+      const now = new Date();
 
       // Save user data to user document
       const userRef = doc(db, "users", userDocId);
@@ -99,22 +105,27 @@ export default function NewProjectPage() {
           email: userFormData.email,
           name: userFormData.name,
           number: userFormData.number,
-          projectName: userFormData.projectName,
+          city: userFormData.city,
+          createdAt: now,
+          lastActivity: now,
         },
         { merge: true }
       );
 
-      // Save project data with document ID equal to userId
-      const projectRef = doc(db, "projects", userDocId);
+      // Save project data with projectId == userId
+      const projectRef = doc(db, "users", userDocId, "projects", userDocId);
       await setDoc(projectRef, {
         name: projectFormData.name,
         number: projectFormData.number,
-        dateStarted: projectFormData.dateStarted,
-        createdAt: new Date(),
+        status: projectFormData.status,
+        startDate: new Date(projectFormData.dateStarted),
+        roomCount: projectFormData.roomCount,
+        createdAt: now,
+        lastUpdated: now,
         userId: userDocId,
       });
 
-      console.log("User data updated and project created with ID: ", userDocId);
+      console.log("User data updated and project created successfully");
       setSuccess(true);
 
       setTimeout(() => {
@@ -223,23 +234,23 @@ export default function NewProjectPage() {
             />
           </div>
 
-          {/* Project Name */}
+          {/* City */}
           <div>
             <label
-              htmlFor="projectName"
+              htmlFor="city"
               className="block text-sm font-medium text-gray-700"
             >
-              Project Name *
+              City *
             </label>
             <input
               type="text"
-              id="projectName"
-              name="projectName"
-              value={userFormData.projectName}
+              id="city"
+              name="city"
+              value={userFormData.city}
               onChange={handleUserChange}
               required
               className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter project name"
+              placeholder="Enter your city"
             />
           </div>
 
@@ -287,6 +298,29 @@ export default function NewProjectPage() {
             />
           </div>
 
+          {/* Project Status */}
+          <div>
+            <label
+              htmlFor="status"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Status *
+            </label>
+            <select
+              id="status"
+              name="status"
+              value={projectFormData.status}
+              onChange={handleProjectChange}
+              required
+              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              <option value="Planning">Planning</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="On Hold">On Hold</option>
+            </select>
+          </div>
+
           {/* Date Started */}
           <div>
             <label
@@ -303,6 +337,27 @@ export default function NewProjectPage() {
               onChange={handleProjectChange}
               required
               className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+
+          {/* Number of Rooms */}
+          <div>
+            <label
+              htmlFor="roomCount"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Number of Rooms *
+            </label>
+            <input
+              type="number"
+              id="roomCount"
+              name="roomCount"
+              value={projectFormData.roomCount}
+              onChange={handleProjectChange}
+              required
+              min="0"
+              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="Enter number of rooms"
             />
           </div>
 
