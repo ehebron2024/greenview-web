@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useParams } from "next/navigation";
+import { useSearchParams, useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { auth } from "@/lib/firebase";
@@ -25,6 +25,7 @@ interface Project {
 export default function ProjectInfoPage() {
   const searchParams = useSearchParams();
   const params = useParams();
+  const router = useRouter();
   const projectId = searchParams.get("projectId");
   const userId = params.userId as string;
   const [project, setProject] = useState<Project | null>(null);
@@ -166,6 +167,27 @@ export default function ProjectInfoPage() {
               {formatDate(project.lastUpdated)}
             </p>
           </div>
+        </div>
+
+        <div className="flex gap-4 pt-8 border-t mt-8">
+          <button
+            onClick={() => {
+              const params = new URLSearchParams({
+                projectId: projectId!,
+                mode: "edit",
+              });
+              router.push(`/${userId}/newProject?${params.toString()}`);
+            }}
+            className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+          >
+            Edit Project
+          </button>
+          <button
+            onClick={() => router.back()}
+            className="flex-1 bg-gray-300 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-400 transition"
+          >
+            Back
+          </button>
         </div>
       </div>
     </div>

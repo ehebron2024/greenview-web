@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
-import { collection, addDoc, doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 
 interface UserFormData {
@@ -27,7 +27,11 @@ interface ProjectFormData {
 export default function NewProjectPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const userId = params.userId as string;
+
+  const isEditMode = searchParams.get("mode") === "edit";
+  const projectId = searchParams.get("projectId");
 
   const [user, setUser] = useState<User | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
@@ -53,6 +57,7 @@ export default function NewProjectPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(isEditMode);
 
   // Check authentication status
   useEffect(() => {
@@ -67,6 +72,64 @@ export default function NewProjectPage() {
 
     return () => unsubscribe();
   }, [router]);
+
+  // Fetch user and project data from Firebase in edit mode
+  useEffect(() => {
+    if (isEditMode && projectId && user) {
+      const fetchData = async () => {
+        try {
+          // Fetch user data
+          const userRef = doc(db, "users", user.uid);
+          const userSnap = await getDoc(userRef);
+
+          if (userSnap.exists()) {
+            const userData = userSnap.data();
+            setUserFormData({
+              email: userData.email || "",
+              name: userData.name || "",
+              number: userData.number || "",
+              city: userData.city || "",
+            });
+          }
+
+          // Fetch project data
+          const projectRef = doc(db, "users", user.uid, "projects", projectId);
+          const projectSnap = await getDoc(projectRef);
+
+          if (projectSnap.exists()) {
+            const projectData = projectSnap.data();
+            setProjectFormData({
+              name: projectData.name || "",
+              contact: projectData.contact || "",
+              dateStarted: projectData.startDate
+                ? new Date(
+                    projectData.startDate.toDate?.() || projectData.startDate
+                  )
+                    .toISOString()
+                    .split("T")[0]
+                : "",
+              status: projectData.status || "Planning",
+              roomCount: projectData.roomCount || 0,
+              budget: projectData.budget || "",
+              description: projectData.description || "",
+              location: projectData.location || "",
+            });
+          }
+        } catch (err) {
+          setError(
+            err instanceof Error ? err.message : "Failed to load project data"
+          );
+          console.error("Error fetching data:", err);
+        } finally {
+          setIsLoadingData(false);
+        }
+      };
+
+      fetchData();
+    } else if (!isEditMode) {
+      setIsLoadingData(false);
+    }
+  }, [isEditMode, projectId, user]);
 
   const handleUserChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -108,6 +171,12 @@ export default function NewProjectPage() {
       return;
     }
 
+    if (isEditMode && !projectId) {
+      setError("Project ID is required for editing");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const userDocId = user.uid;
       const now = new Date();
@@ -127,23 +196,28 @@ export default function NewProjectPage() {
         { merge: true }
       );
 
-      // Save project data with projectId == userId
-      const projectRef = doc(db, "users", userDocId, "projects", userDocId);
-      await setDoc(projectRef, {
-        name: projectFormData.name,
-        contact: projectFormData.contact,
-        status: projectFormData.status,
-        startDate: new Date(projectFormData.dateStarted),
-        roomCount: projectFormData.roomCount,
-        budget: projectFormData.budget,
-        description: projectFormData.description,
-        location: projectFormData.location,
-        createdAt: now,
-        lastUpdated: now,
-        userId: userDocId,
-      });
+      // Use projectId in edit mode, otherwise use userId
+      const docId = isEditMode ? projectId! : userDocId;
+      const projectRef = doc(db, "users", userDocId, "projects", docId);
+      await setDoc(
+        projectRef,
+        {
+          name: projectFormData.name,
+          contact: projectFormData.contact,
+          status: projectFormData.status,
+          startDate: new Date(projectFormData.dateStarted),
+          roomCount: projectFormData.roomCount,
+          budget: projectFormData.budget,
+          description: projectFormData.description,
+          location: projectFormData.location,
+          createdAt: isEditMode ? undefined : now,
+          lastUpdated: now,
+          userId: userDocId,
+        },
+        { merge: true }
+      );
 
-      console.log("User data updated and project created successfully");
+      console.log(`Project ${isEditMode ? "updated" : "created"} successfully`);
       setSuccess(true);
 
       setTimeout(() => {
@@ -157,7 +231,7 @@ export default function NewProjectPage() {
     }
   };
 
-  if (isAuthChecking) {
+  if (isAuthChecking || isLoadingData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-gray-600">Loading...</div>
@@ -169,7 +243,7 @@ export default function NewProjectPage() {
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          Create New Project
+          {isEditMode ? "Edit Project" : "Create New Project"}
         </h1>
 
         {error && (
@@ -180,7 +254,8 @@ export default function NewProjectPage() {
 
         {success && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
-            Project created successfully! Redirecting...
+            Project {isEditMode ? "updated" : "created"} successfully!
+            Redirecting...
           </div>
         )}
 
@@ -446,7 +521,13 @@ export default function NewProjectPage() {
               disabled={isLoading}
               className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
-              {isLoading ? "Creating..." : "Create Project"}
+              {isLoading
+                ? isEditMode
+                  ? "Updating..."
+                  : "Creating..."
+                : isEditMode
+                ? "Update Project"
+                : "Create Project"}
             </button>
             <button
               type="button"
