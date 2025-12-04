@@ -15,11 +15,12 @@ interface Project {
   createdAt: any;
   lastUpdated: any;
   status: string;
-  budget?: number;
+  budget?: string;
   contact?: string;
   location?: string;
   startDate?: any;
   userId?: string;
+  roomCount?: number;
 }
 
 export default function ProjectInfoPage() {
@@ -151,6 +152,13 @@ export default function ProjectInfoPage() {
               <p className="text-lg text-gray-900">
                 {formatDate(project.startDate)}
               </p>
+            </div>
+          )}
+
+          {project.roomCount && (
+            <div>
+              <p className="text-sm font-medium text-gray-600">Room Count</p>
+              <p className="text-lg text-gray-900">{project.roomCount}</p>
             </div>
           )}
 

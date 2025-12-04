@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { auth, db } from "@/lib/firebase"; // Ensure this file exists and exports 'auth' and 'db'
-import { collection, onSnapshot, DocumentData } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
+import {
+  collection,
+  onSnapshot,
+  DocumentData,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { User } from "firebase/auth";
 
 const ProjectGallery: React.FC = () => {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [userName, setUserName] = useState<string>("");
   const [projects, setProjects] = useState<DocumentData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,21 +22,38 @@ const ProjectGallery: React.FC = () => {
   );
 
   useEffect(() => {
-    // Observe changes in the user's sign-in state
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
       setCurrentUser(user);
-      setLoading(false); // Auth state determined
+      setLoading(false);
     });
 
-    // Cleanup the auth listener when the component unmounts
     return () => unsubscribeAuth();
   }, []);
+
+  // Fetch user name from Firestore
+  useEffect(() => {
+    if (currentUser) {
+      const fetchUserName = async () => {
+        try {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          const userSnap = await getDoc(userDocRef);
+          if (userSnap.exists()) {
+            setUserName(userSnap.data().name || currentUser.email || "");
+          }
+        } catch (err) {
+          console.error("Error fetching user name:", err);
+          setUserName(currentUser.email || "");
+        }
+      };
+
+      fetchUserName();
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     let unsubscribeFirestore: () => void;
 
     if (currentUser) {
-      // Fetch the user's projects from Firestore
       const userProjectsCollectionRef = collection(
         db,
         "users",
@@ -45,7 +69,7 @@ const ProjectGallery: React.FC = () => {
             userProjects.push({ id: doc.id, ...doc.data() });
           });
           setProjects(userProjects);
-          setError(null); // Clear any previous errors
+          setError(null);
         },
         (firestoreError) => {
           console.error("Error fetching user's projects:", firestoreError);
@@ -53,11 +77,9 @@ const ProjectGallery: React.FC = () => {
         }
       );
     } else {
-      // Clear projects if no user is logged in
       setProjects([]);
     }
 
-    // Cleanup the Firestore listener when the component unmounts or user changes
     return () => {
       if (unsubscribeFirestore) {
         unsubscribeFirestore();
@@ -87,7 +109,7 @@ const ProjectGallery: React.FC = () => {
       <h2
         style={{ color: "#013220", fontWeight: "bold", marginBottom: "20px" }}
       >
-        {currentUser.email}'s Project Gallery
+        {userName}'s Project Gallery
       </h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
       {projects.length === 0 ? (
