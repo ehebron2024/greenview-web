@@ -234,6 +234,19 @@ export default function NewProjectPage() {
     }
   };
 
+  const handleUploadFiles = () => {
+    if (projectFormData.name && !isEditMode) {
+      // Save project first before going to upload
+      setError("Please save the project first before uploading files");
+      return;
+    }
+
+    const currentProjectId = isEditMode
+      ? projectId
+      : `${user?.uid}_${Date.now()}`;
+    router.push(`/${userId}/projects/${currentProjectId}/uploadFiles`);
+  };
+
   if (isAuthChecking || isLoadingData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -266,6 +279,7 @@ export default function NewProjectPage() {
           onSubmit={handleSubmit}
           className="bg-white rounded-lg shadow p-8 space-y-6"
         >
+          {/* ...existing form fields... */}
           <h2 className="text-xl font-semibold text-gray-800 border-b pb-4">
             User Information
           </h2>
@@ -540,6 +554,19 @@ export default function NewProjectPage() {
               Cancel
             </button>
           </div>
+
+          {/* Upload Files Button - Only show after project is created/edited */}
+          {isEditMode && (
+            <div className="pt-4 border-t">
+              <button
+                type="button"
+                onClick={handleUploadFiles}
+                className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+              >
+                Upload Project Files
+              </button>
+            </div>
+          )}
         </form>
       </div>
     </div>
