@@ -5,6 +5,7 @@ import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
+import SuccessModal from "@/components/SuccessModal";
 
 interface UserFormData {
   email: string;
@@ -35,6 +36,7 @@ export default function NewProjectPage() {
 
   const [user, setUser] = useState<User | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [userFormData, setUserFormData] = useState<UserFormData>({
     email: "",
@@ -222,10 +224,7 @@ export default function NewProjectPage() {
 
       console.log(`Project ${isEditMode ? "updated" : "created"} successfully`);
       setSuccess(true);
-
-      setTimeout(() => {
-        router.push(`/${userDocId}/userProjects`);
-      }, 1500);
+      setShowSuccessModal(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       console.error("Error saving data: ", err);
@@ -247,6 +246,11 @@ export default function NewProjectPage() {
     router.push(`/${userId}/projects/${currentProjectId}/uploadFiles`);
   };
 
+  const handleModalClose = () => {
+    setShowSuccessModal(false);
+    router.push(`/${user?.uid}/userProjects`);
+  };
+
   if (isAuthChecking || isLoadingData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -256,319 +260,323 @@ export default function NewProjectPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          {isEditMode ? "Edit Project" : "Create New Project"}
-        </h1>
+    <>
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-2xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">
+            {isEditMode ? "Edit Project" : "Create New Project"}
+          </h1>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
-            Project {isEditMode ? "updated" : "created"} successfully!
-            Redirecting...
-          </div>
-        )}
-
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-lg shadow p-8 space-y-6"
-        >
-          {/* ...existing form fields... */}
-          <h2 className="text-xl font-semibold text-gray-800 border-b pb-4">
-            User Information
-          </h2>
-
-          {/* Email */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email *
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={userFormData.email}
-              onChange={handleUserChange}
-              required
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter your email"
-            />
-          </div>
-
-          {/* Name */}
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Name *
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={userFormData.name}
-              onChange={handleUserChange}
-              required
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter your name"
-            />
-          </div>
-
-          {/* Number */}
-          <div>
-            <label
-              htmlFor="number"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Phone Number *
-            </label>
-            <input
-              type="tel"
-              id="number"
-              name="number"
-              value={userFormData.number}
-              onChange={handleUserChange}
-              required
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter your phone number"
-            />
-          </div>
-
-          {/* City */}
-          <div>
-            <label
-              htmlFor="city"
-              className="block text-sm font-medium text-gray-700"
-            >
-              City *
-            </label>
-            <input
-              type="text"
-              id="city"
-              name="city"
-              value={userFormData.city}
-              onChange={handleUserChange}
-              required
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter your city"
-            />
-          </div>
-
-          <h2 className="text-xl font-semibold text-gray-800 border-b pb-4 pt-4">
-            Project Details
-          </h2>
-
-          {/* Project Name (Details) */}
-          <div>
-            <label
-              htmlFor="projectDetailName"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Project Name *
-            </label>
-            <input
-              type="text"
-              id="projectDetailName"
-              name="name"
-              value={projectFormData.name}
-              onChange={handleProjectChange}
-              required
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter project name"
-            />
-          </div>
-
-          {/* Project Contact */}
-          <div>
-            <label
-              htmlFor="projectContact"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Project Contact *
-            </label>
-            <input
-              type="text"
-              id="projectContact"
-              name="contact"
-              value={projectFormData.contact}
-              onChange={handleProjectChange}
-              required
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter project contact"
-            />
-          </div>
-
-          {/* Project Location */}
-          <div>
-            <label
-              htmlFor="location"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Location *
-            </label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={projectFormData.location}
-              onChange={handleProjectChange}
-              required
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter project location/address"
-            />
-          </div>
-
-          {/* Project Budget */}
-          <div>
-            <label
-              htmlFor="budget"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Budget *
-            </label>
-            <input
-              type="number"
-              id="budget"
-              name="budget"
-              value={projectFormData.budget}
-              onChange={handleProjectChange}
-              required
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter project budget"
-            />
-          </div>
-
-          {/* Project Description */}
-          <div>
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Description *
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={projectFormData.description}
-              onChange={handleProjectChange}
-              required
-              rows={4}
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter project description"
-            />
-          </div>
-
-          {/* Project Status */}
-          <div>
-            <label
-              htmlFor="status"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Status *
-            </label>
-            <select
-              id="status"
-              name="status"
-              value={projectFormData.status}
-              onChange={handleProjectChange}
-              required
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              <option value="Planning">Planning</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-              <option value="On Hold">On Hold</option>
-            </select>
-          </div>
-
-          {/* Date Started */}
-          <div>
-            <label
-              htmlFor="dateStarted"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Date Started *
-            </label>
-            <input
-              type="date"
-              id="dateStarted"
-              name="dateStarted"
-              value={projectFormData.dateStarted}
-              onChange={handleProjectChange}
-              required
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-          </div>
-
-          {/* Number of Rooms */}
-          <div>
-            <label
-              htmlFor="roomCount"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Number of Rooms *
-            </label>
-            <input
-              type="number"
-              id="roomCount"
-              name="roomCount"
-              value={projectFormData.roomCount || ""}
-              onChange={handleProjectChange}
-              required
-              min="0"
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter number of rooms"
-            />
-          </div>
-
-          {/* Form Actions */}
-          <div className="flex gap-4 pt-6">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-            >
-              {isLoading
-                ? isEditMode
-                  ? "Updating..."
-                  : "Creating..."
-                : isEditMode
-                ? "Update Project"
-                : "Create Project"}
-            </button>
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="flex-1 bg-gray-300 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-400 transition"
-            >
-              Cancel
-            </button>
-          </div>
-
-          {/* Upload Files Button - Only show after project is created/edited */}
-          {isEditMode && (
-            <div className="pt-4 border-t">
-              <button
-                type="button"
-                onClick={handleUploadFiles}
-                className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
-              >
-                Upload Project Files
-              </button>
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+              {error}
             </div>
           )}
-        </form>
+
+          {success && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+              Project {isEditMode ? "updated" : "created"} successfully!
+              Redirecting...
+            </div>
+          )}
+
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-lg shadow p-8 space-y-6"
+          >
+            {/* ...existing form fields... */}
+            <h2 className="text-xl font-semibold text-gray-800 border-b pb-4">
+              User Information
+            </h2>
+
+            {/* Email */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email *
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={userFormData.email}
+                onChange={handleUserChange}
+                required
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter your email"
+              />
+            </div>
+
+            {/* Name */}
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Name *
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={userFormData.name}
+                onChange={handleUserChange}
+                required
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter your name"
+              />
+            </div>
+
+            {/* Number */}
+            <div>
+              <label
+                htmlFor="number"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Phone Number *
+              </label>
+              <input
+                type="tel"
+                id="number"
+                name="number"
+                value={userFormData.number}
+                onChange={handleUserChange}
+                required
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter your phone number"
+              />
+            </div>
+
+            {/* City */}
+            <div>
+              <label
+                htmlFor="city"
+                className="block text-sm font-medium text-gray-700"
+              >
+                City *
+              </label>
+              <input
+                type="text"
+                id="city"
+                name="city"
+                value={userFormData.city}
+                onChange={handleUserChange}
+                required
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter your city"
+              />
+            </div>
+
+            <h2 className="text-xl font-semibold text-gray-800 border-b pb-4 pt-4">
+              Project Details
+            </h2>
+
+            {/* Project Name (Details) */}
+            <div>
+              <label
+                htmlFor="projectDetailName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Project Name *
+              </label>
+              <input
+                type="text"
+                id="projectDetailName"
+                name="name"
+                value={projectFormData.name}
+                onChange={handleProjectChange}
+                required
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter project name"
+              />
+            </div>
+
+            {/* Project Contact */}
+            <div>
+              <label
+                htmlFor="projectContact"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Project Contact *
+              </label>
+              <input
+                type="text"
+                id="projectContact"
+                name="contact"
+                value={projectFormData.contact}
+                onChange={handleProjectChange}
+                required
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter project contact"
+              />
+            </div>
+
+            {/* Project Location */}
+            <div>
+              <label
+                htmlFor="location"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Location *
+              </label>
+              <input
+                type="text"
+                id="location"
+                name="location"
+                value={projectFormData.location}
+                onChange={handleProjectChange}
+                required
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter project location/address"
+              />
+            </div>
+
+            {/* Project Budget */}
+            <div>
+              <label
+                htmlFor="budget"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Budget *
+              </label>
+              <input
+                type="number"
+                id="budget"
+                name="budget"
+                value={projectFormData.budget}
+                onChange={handleProjectChange}
+                required
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter project budget"
+              />
+            </div>
+
+            {/* Project Description */}
+            <div>
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Description *
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={projectFormData.description}
+                onChange={handleProjectChange}
+                required
+                rows={4}
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter project description"
+              />
+            </div>
+
+            {/* Project Status */}
+            <div>
+              <label
+                htmlFor="status"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Status *
+              </label>
+              <select
+                id="status"
+                name="status"
+                value={projectFormData.status}
+                onChange={handleProjectChange}
+                required
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value="Planning">Planning</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+                <option value="On Hold">On Hold</option>
+              </select>
+            </div>
+
+            {/* Date Started */}
+            <div>
+              <label
+                htmlFor="dateStarted"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Date Started *
+              </label>
+              <input
+                type="date"
+                id="dateStarted"
+                name="dateStarted"
+                value={projectFormData.dateStarted}
+                onChange={handleProjectChange}
+                required
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+
+            {/* Number of Rooms */}
+            <div>
+              <label
+                htmlFor="roomCount"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Number of Rooms *
+              </label>
+              <input
+                type="number"
+                id="roomCount"
+                name="roomCount"
+                value={projectFormData.roomCount || ""}
+                onChange={handleProjectChange}
+                required
+                min="0"
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter number of rooms"
+              />
+            </div>
+
+            {/* Form Actions */}
+            <div className="flex gap-4 pt-6">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                {isLoading
+                  ? isEditMode
+                    ? "Updating..."
+                    : "Creating..."
+                  : isEditMode
+                  ? "Update Project"
+                  : "Create Project"}
+              </button>
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="flex-1 bg-gray-300 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+            </div>
+
+            {/* Upload Files Button - Only show after project is created/edited */}
+            {isEditMode && (
+              <div className="pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={handleUploadFiles}
+                  className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+                >
+                  Upload Project Files
+                </button>
+              </div>
+            )}
+          </form>
+        </div>
       </div>
-    </div>
+
+      <SuccessModal isOpen={showSuccessModal} onClose={handleModalClose} />
+    </>
   );
 }

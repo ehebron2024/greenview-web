@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -74,9 +75,11 @@
   * {
     border-color: var(--color-border);
     outline-color: rgb(var(--color-ring) / 0.5);
+    font-family: 'Open Sans', sans-serif;
   }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: 'Open Sans', sans-serif;
   }
 }

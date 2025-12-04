@@ -1,20 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { db, app } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { Poppins } from "next/font/google";
-
-const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600", "700"] });
-
-function getFirstNameFromEmail(email: string | null): string {
-  if (!email) return "User";
-  const namePart = email.split("@")[0];
-  const firstName = namePart.split(/[._-]/)[0];
-  return firstName.charAt(0).toUpperCase() + firstName.slice(1);
-}
+import { useUser } from "@/context/UserContext";
 
 export default function UserLayout({
   children,
@@ -22,51 +10,21 @@ export default function UserLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const [firstName, setFirstName] = useState<string>("User");
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, loading } = useUser();
 
   useEffect(() => {
-    const auth = getAuth(app);
-
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      if (!currentUser) {
+    if (!loading) {
+      if (!user) {
         router.push("/");
-        setIsLoading(false);
         return;
       }
+    }
+  }, [user, loading, router]);
 
-      async function fetchUserName() {
-        if (!currentUser) return;
-        try {
-          const userRef = doc(db, "users", currentUser.uid);
-          const userSnap = await getDoc(userRef);
-          const email = userSnap.data()?.email ?? null;
-          if (email) {
-            setFirstName(getFirstNameFromEmail(email));
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-      fetchUserName();
-    });
-
-    return () => unsubscribe();
-  }, [router]);
-
-  if (isLoading) return null;
+  if (loading) return null;
 
   return (
-    <div
-      className={poppins.className}
-      style={{
-        backgroundColor: "#f5f5dc",
-        minHeight: "100vh",
-        position: "relative",
-      }}
-    >
+    <div style={{ backgroundColor: "#f5f5dc", minHeight: "100vh" }}>
       <main style={{ padding: "20px" }}>{children}</main>
     </div>
   );

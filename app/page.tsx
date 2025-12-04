@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link"; // Import Next.js Link component
 import { useRouter } from "next/navigation";
 import SignInForm from "@/components/authentication/signInForm";
-import ProjectGallery from "@/components/projectGallery";
 // Ensure Firebase is initialized in the "@/lib/firebase" module before calling getAuth
 import { getAuth } from "firebase/auth";
 import { db } from "@/lib/firebase";
@@ -57,75 +56,52 @@ export default function Home() {
         color: "#013220", // Dark green text
       }}
     >
-      <div
+      {/* Logo Section */}
+      <img
+        src="/print_transparent.svg" // Replace with your logo path
+        alt="GreenView Logo"
         style={{
-          width: "100%",
-          maxWidth: "400px",
-          padding: "20px",
-          backgroundColor: "#ffffff", // White background for the form container
-          borderRadius: "8px",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Subtle shadow
-          textAlign: "center",
+          width: "150px",
+          marginBottom: "20px",
+          display: "block", // Ensures the image behaves like a block element
+          margin: "0 auto", // Centers the image horizontally
         }}
-      >
-        {/* Logo Section */}
-        <img
-          src="/print_transparent.svg" // Replace with your logo path
-          alt="GreenView Logo"
-          style={{
-            width: "150px",
-            marginBottom: "20px",
-            display: "block", // Ensures the image behaves like a block element
-            margin: "0 auto", // Centers the image horizontally
-          }}
-        />
+      />
 
-        {/* Heading Section */}
-        <h1
+      {/* Conditional Rendering for Forms */}
+      {!isLoggedIn ? (
+        <>
+          <SignInForm onSignInSuccess={handleSignInSuccess} />
+          <p style={{ marginTop: "20px" }}>
+            Don't have an account?{" "}
+            <Link
+              href="/signup"
+              style={{
+                color: "#013220",
+                textDecoration: "underline",
+                cursor: "pointer",
+              }}
+            >
+              Sign Up
+            </Link>
+          </p>
+        </>
+      ) : (
+        <button
+          onClick={handleViewProjects}
           style={{
-            fontSize: "24px",
-            fontWeight: "bold",
-            marginBottom: "20px",
+            padding: "10px 20px",
+            backgroundColor: "#013220",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "16px",
           }}
         >
-          Welcome to GreenView!
-        </h1>
-
-        {/* Conditional Rendering for Forms */}
-        {!isLoggedIn ? (
-          <>
-            <SignInForm onSignInSuccess={handleSignInSuccess} />
-            <p style={{ marginTop: "20px" }}>
-              Don't have an account?{" "}
-              <Link
-                href="/signup"
-                style={{
-                  color: "#013220",
-                  textDecoration: "underline",
-                  cursor: "pointer",
-                }}
-              >
-                Sign Up
-              </Link>
-            </p>
-          </>
-        ) : (
-          <button
-            onClick={handleViewProjects}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#013220",
-              color: "#ffffff",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontSize: "16px",
-            }}
-          >
-            View My Projects
-          </button>
-        )}
-      </div>
+          View My Projects
+        </button>
+      )}
     </div>
   );
 }
