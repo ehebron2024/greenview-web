@@ -145,6 +145,39 @@ const ProjectGallery: React.FC = () => {
                   "0 4px 6px rgba(0, 0, 0, 0.1)";
               }}
             >
+              <div
+                style={{
+                  width: "100%",
+                  height: "150px",
+                  backgroundColor: "#f0f0f0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
+                }}
+              >
+                {project.imageUrl ? (
+                  <img
+                    src={project.imageUrl}
+                    alt={project.name}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <img
+                    src="/fulllogo.jpg"
+                    alt="GreenView Logo"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                )}
+              </div>
               <div style={{ padding: "10px" }}>
                 <h3 style={{ fontSize: "18px", fontWeight: "bold" }}>
                   {project.name}

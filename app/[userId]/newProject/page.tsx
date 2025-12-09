@@ -198,9 +198,9 @@ export default function NewProjectPage() {
         { merge: true }
       );
 
-      // Use projectId in edit mode, otherwise generate a new ID using the user ID
+      // Use projectId in edit mode, otherwise generate a new ID
       const docId = isEditMode ? projectId! : `${userDocId}_${Date.now()}`;
-      const projectRef = doc(db, "users", userDocId!, "projects", docId);
+      const projectRef = doc(db, "users", userDocId, "projects", docId);
 
       const projectData: any = {
         name: projectFormData.name,
@@ -212,7 +212,7 @@ export default function NewProjectPage() {
         description: projectFormData.description,
         location: projectFormData.location,
         lastUpdated: now,
-        userId: userDocId,
+        userId: userDocId, // Add userId to project
       };
 
       // Only add createdAt for new projects
@@ -222,7 +222,11 @@ export default function NewProjectPage() {
 
       await setDoc(projectRef, projectData, { merge: true });
 
-      console.log(`Project ${isEditMode ? "updated" : "created"} successfully`);
+      console.log(
+        `Project ${
+          isEditMode ? "updated" : "created"
+        } successfully with ID: ${docId}`
+      );
       setSuccess(true);
       setShowSuccessModal(true);
     } catch (err) {
