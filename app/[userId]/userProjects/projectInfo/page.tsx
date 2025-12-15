@@ -63,12 +63,8 @@ export default function ProjectInfoPage() {
 
     const fetchProject = async () => {
       try {
-        if (projectId !== userId) {
-          setError("This project does not belong to you");
-          setLoading(false);
-          return;
-        }
-
+        // Removed incorrect ownership check. The doc path ensures ownership:
+        // users/{userId}/projects/{projectId}
         const docRef = doc(db, "users", userId, "projects", projectId);
         const docSnap = await getDoc(docRef);
 
