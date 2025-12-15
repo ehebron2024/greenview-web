@@ -101,7 +101,7 @@ export default function NewRoomPage() {
 
       alert("Room created successfully!");
       router.push(
-        `/${userId}/userProjects/projectInfo/roomInfo/roomsList/roomsList?projectId=${projectId}`
+        `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
       );
     } catch (err) {
       console.error("Error saving room:", err);
@@ -221,7 +221,7 @@ export default function NewRoomPage() {
                 type="button"
                 onClick={() =>
                   router.push(
-                    `/${userId}/userProjects/projectInfo/roomInfo/roomsList/roomsList?projectId=${projectId}`
+                    `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
                   )
                 }
                 className="flex-1 bg-gray-300 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-400 transition"

@@ -81,7 +81,7 @@ export default function RoomInfoPage() {
             <button
               onClick={() =>
                 router.push(
-                  `/${userId}/userProjects/projectInfo/roomInfo/roomsList/newRoom?projectId=${projectId}`
+                  `/${userId}/userProjects/projectInfo/roomInfo/newRoom?projectId=${projectId}`
                 )
               }
               className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition"
@@ -113,7 +113,7 @@ export default function RoomInfoPage() {
                     <button
                       onClick={() =>
                         router.push(
-                          `/${userId}/userProjects/projectInfo/roomInfo/roomsList/${room.id}/editRoom?projectId=${projectId}`
+                          `/${userId}/userProjects/projectInfo/roomInfo/${room.id}/editRoom?projectId=${projectId}`
                         )
                       }
                       className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"

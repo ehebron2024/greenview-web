@@ -10,6 +10,7 @@ import { onAuthStateChanged } from "firebase/auth";
 interface Room {
   id: string;
   name: string;
+  description?: string;
 }
 
 interface Project {
@@ -39,6 +40,7 @@ export default function ProjectInfoPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [roomsLoading, setRoomsLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -118,6 +120,18 @@ export default function ProjectInfoPage() {
 
     fetchRooms();
   }, [projectId, userId, currentUser]);
+
+  useEffect(() => {
+    if (!projectId) return;
+    (async () => {
+      setRoomsLoading(true);
+      const snap = await getDocs(
+        collection(db, "users", userId, "projects", projectId, "rooms")
+      );
+      setRooms(snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })));
+      setRoomsLoading(false);
+    })();
+  }, [userId, projectId]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -243,7 +257,7 @@ export default function ProjectInfoPage() {
               <button
                 onClick={() =>
                   router.push(
-                    `/${userId}/userProjects/projectInfo/roomInfo/roomsList/newRoom?projectId=${projectId}`
+                    `/${userId}/userProjects/projectInfo/roomInfo/newRoom?projectId=${projectId}`
                   )
                 }
                 className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition"
@@ -254,7 +268,7 @@ export default function ProjectInfoPage() {
                 <button
                   onClick={() =>
                     router.push(
-                      `/${userId}/userProjects/projectInfo/roomInfo/roomsList/roomsList?projectId=${projectId}`
+                      `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
                     )
                   }
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
@@ -265,30 +279,51 @@ export default function ProjectInfoPage() {
             </div>
           </div>
 
-          {rooms.length === 0 ? (
+          {roomsLoading ? (
+            <p className="text-gray-600">Loading rooms...</p>
+          ) : rooms.length === 0 ? (
             <p className="text-gray-600">No rooms added yet.</p>
           ) : (
             <div className="space-y-3">
-              {rooms.map((room) => (
+              {rooms.slice(0, 5).map((room) => (
                 <div
                   key={room.id}
                   className="flex justify-between items-center px-4 py-3 border rounded-lg hover:bg-gray-50"
                 >
-                  <p className="text-lg font-semibold text-gray-900">
-                    {room.name}
-                  </p>
+                  <div>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {room.name}
+                    </p>
+                    {room.description && (
+                      <p className="text-sm text-gray-600">
+                        {room.description}
+                      </p>
+                    )}
+                  </div>
                   <button
                     onClick={() =>
                       router.push(
-                        `/${userId}/userProjects/projectInfo/roomInfo/roomsList/${room.id}/editRoom?projectId=${projectId}`
+                        `/${userId}/userProjects/projectInfo/roomInfo/${room.id}/editRoom?projectId=${projectId}`
                       )
                     }
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
                   >
-                    ['Edit ']Room
+                    Edit
                   </button>
                 </div>
               ))}
+              {rooms.length > 5 && (
+                <button
+                  onClick={() =>
+                    router.push(
+                      `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
+                    )
+                  }
+                  className="w-full text-center text-blue-700 font-medium py-2 hover:underline"
+                >
+                  View all {rooms.length} rooms
+                </button>
+              )}
             </div>
           )}
         </div>
