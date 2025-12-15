@@ -1,6 +1,6 @@
 import ProtectedSection from "@/components/ProtectedSection";
 
-export default function RoomInfoLayout({
+export default function RoomsListLayout({
   children,
 }: {
   children: React.ReactNode;
