@@ -1,4 +1,4 @@
-export default function EditRoomLayout({
+export default function RoomDetailLayout({
   children,
 }: {
   children: React.ReactNode;

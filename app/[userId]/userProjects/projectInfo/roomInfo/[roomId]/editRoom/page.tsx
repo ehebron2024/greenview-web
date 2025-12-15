@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { db, storage } from "@/lib/firebase";
 import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -28,11 +28,11 @@ interface Room {
 }
 
 export default function EditRoomPage() {
-  const searchParams = useSearchParams();
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const projectId = searchParams.get("projectId");
-  const roomId = searchParams.get("roomId");
+  const roomId = params.roomId as string;
+  const projectId = searchParams.get("projectId") as string;
   const userId = params.userId as string;
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);

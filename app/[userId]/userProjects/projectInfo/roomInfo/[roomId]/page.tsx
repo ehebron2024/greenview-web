@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { auth } from "@/lib/firebase";
@@ -24,12 +24,11 @@ interface Room {
   startDate?: any;
 }
 
-export default function RoomInfoPage() {
-  const searchParams = useSearchParams();
+export default function RoomDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const projectId = searchParams.get("projectId");
-  const roomId = searchParams.get("roomId");
+  const roomId = params.roomId as string;
+  const projectId = params.projectId as string;
   const userId = params.userId as string;
   const [room, setRoom] = useState<Room | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -53,8 +52,6 @@ export default function RoomInfoPage() {
 
   useEffect(() => {
     if (!projectId || !roomId || !currentUser) {
-      if (!projectId) setError("No project ID provided");
-      if (!roomId) setError("No room ID provided");
       return;
     }
 
@@ -90,7 +87,6 @@ export default function RoomInfoPage() {
     fetchRoom();
   }, [projectId, roomId, currentUser, userId]);
 
-  // Fetch tasks for the room
   useEffect(() => {
     if (!projectId || !roomId || !userId || !currentUser) return;
 
@@ -146,7 +142,6 @@ export default function RoomInfoPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Room Details Display */}
         <div className="bg-white rounded-lg shadow p-8 mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-6">{room.name}</h1>
 
@@ -182,7 +177,6 @@ export default function RoomInfoPage() {
             )}
           </div>
 
-          {/* Image Gallery */}
           {images.length > 0 && (
             <div className="mb-8">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Images</h2>
@@ -240,20 +234,9 @@ export default function RoomInfoPage() {
             >
               Back
             </button>
-            <button
-              onClick={() =>
-                router.push(
-                  `/${userId}/userProjects/projectInfo/roomInfo/${room.id}?projectId=${projectId}`
-                )
-              }
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
-            >
-              View
-            </button>
           </div>
         </div>
 
-        {/* Tasks Section */}
         <div className="bg-white rounded-lg shadow p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Tasks</h2>
 

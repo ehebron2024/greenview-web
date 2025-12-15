@@ -270,19 +270,24 @@ export default function ProjectInfoPage() {
           ) : (
             <div className="space-y-3">
               {rooms.map((room) => (
-                <button
+                <div
                   key={room.id}
-                  onClick={() =>
-                    router.push(
-                      `/${userId}/userProjects/projectInfo/roomInfo?projectId=${projectId}&roomId=${room.id}`
-                    )
-                  }
-                  className="w-full text-left px-4 py-3 border rounded-lg hover:bg-blue-50 hover:border-blue-500 transition"
+                  className="flex justify-between items-center px-4 py-3 border rounded-lg hover:bg-gray-50"
                 >
                   <p className="text-lg font-semibold text-gray-900">
                     {room.name}
                   </p>
-                </button>
+                  <button
+                    onClick={() =>
+                      router.push(
+                        `/${userId}/userProjects/projectInfo/roomInfo/${room.id}/editRoom?projectId=${projectId}`
+                      )
+                    }
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+                  >
+                    Edit Room
+                  </button>
+                </div>
               ))}
             </div>
           )}
