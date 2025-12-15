@@ -1,4 +1,4 @@
-export default function ProjectInfoLayout({
+export default function EditRoomLayout({
   children,
 }: {
   children: React.ReactNode;
