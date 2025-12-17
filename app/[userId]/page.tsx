@@ -5,9 +5,6 @@ import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db, app } from "@/lib/firebase";
-import { Poppins } from "next/font/google";
-
-const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600", "700"] });
 
 function getFirstNameFromEmail(email: string | null): string {
   if (!email) return "User";
@@ -59,61 +56,19 @@ export default function UserPage() {
   };
 
   return (
-    <div
-      className={poppins.className}
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#f5f5dc",
-        color: "#013220",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "400px",
-          padding: "20px",
-          backgroundColor: "#ffffff",
-          borderRadius: "8px",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-          textAlign: "center",
-        }}
-      >
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
+      <div className="w-full max-w-md p-5 bg-card rounded-lg shadow-lg text-center">
         {/* Logo Section */}
         <img
           src="./print_transparent.svg"
           alt="GreenView Logo"
-          style={{
-            width: "150px",
-            marginBottom: "20px",
-            display: "block",
-            margin: "0 auto",
-          }}
+          className="w-[150px] mb-5 mx-auto"
         />
 
         {/* Projects Button */}
         <button
           onClick={handleProjectsClick}
-          style={{
-            backgroundColor: "#013220",
-            color: "#ffffff",
-            padding: "10px 24px",
-            fontSize: "16px",
-            fontWeight: "600",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            transition: "background-color 0.3s ease",
-          }}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0a1f17")
-          }
-          onMouseOut={(e) =>
-            (e.currentTarget.style.backgroundColor = "#013220")
-          }
+          className="bg-primary text-primary-foreground px-6 py-2.5 text-base font-semibold border-none rounded-md cursor-pointer transition-colors hover:bg-accent"
         >
           View Projects
         </button>
@@ -121,25 +76,7 @@ export default function UserPage() {
         {/* New Project Button */}
         <button
           onClick={handleNewProjectClick}
-          style={{
-            backgroundColor: "#013220",
-            color: "#ffffff",
-            padding: "10px 24px",
-            fontSize: "16px",
-            fontWeight: "600",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            transition: "background-color 0.3s ease",
-            marginTop: "12px",
-            marginLeft: "12px",
-          }}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0a1f17")
-          }
-          onMouseOut={(e) =>
-            (e.currentTarget.style.backgroundColor = "#013220")
-          }
+          className="bg-primary text-primary-foreground px-6 py-2.5 text-base font-semibold border-none rounded-md cursor-pointer transition-colors hover:bg-accent mt-3 ml-3"
         >
           Create New Project
         </button>

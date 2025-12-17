@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link"; // Import Next.js Link component
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import SignInForm from "@/components/authentication/signInForm";
-// Ensure Firebase is initialized in the "@/lib/firebase" module before calling getAuth
 import { getAuth } from "firebase/auth";
 import { db } from "@/lib/firebase";
 
@@ -13,7 +12,6 @@ export default function Home() {
   const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
-  // Check if user is already signed in on mount
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -28,7 +26,6 @@ export default function Home() {
     return () => unsubscribe();
   }, []);
 
-  // Callback for successful login
   const handleSignInSuccess = (id: string) => {
     setIsLoggedIn(true);
     setUserId(id);
@@ -45,59 +42,32 @@ export default function Home() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
-        backgroundColor: "#f5f5dc", // Cream background
-        color: "#013220", // Dark green text
-      }}
-    >
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-5">
       {/* Logo Section */}
       <img
-        src="/print_transparent.svg" // Replace with your logo path
+        src="/print_transparent.svg"
         alt="GreenView Logo"
-        style={{
-          width: "150px",
-          marginBottom: "20px",
-          display: "block", // Ensures the image behaves like a block element
-          margin: "0 auto", // Centers the image horizontally
-        }}
+        className="w-[150px] mb-5"
       />
 
       {/* Conditional Rendering for Forms */}
       {!isLoggedIn ? (
-        <>
+        <div className="w-full max-w-md">
           <SignInForm onSignInSuccess={handleSignInSuccess} />
-          <p style={{ marginTop: "20px" }}>
+          <p className="mt-5 text-center text-foreground">
             Don't have an account?{" "}
             <Link
               href="/signup"
-              style={{
-                color: "#013220",
-                textDecoration: "underline",
-                cursor: "pointer",
-              }}
+              className="text-primary underline cursor-pointer hover:text-accent"
             >
               Sign Up
             </Link>
           </p>
-        </>
+        </div>
       ) : (
         <button
           onClick={handleViewProjects}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#013220",
-            color: "#ffffff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "16px",
-          }}
+          className="px-5 py-2.5 bg-primary text-primary-foreground border-none rounded cursor-pointer text-base font-medium transition-colors hover:bg-accent"
         >
           View My Projects
         </button>

@@ -17,13 +17,7 @@ export default function NavigationBar() {
   if (loading) return null;
 
   return (
-    <nav
-      style={{
-        padding: "16px 20px",
-        borderBottom: "1px solid #e0e0e0",
-        backgroundColor: "#ffffff",
-      }}
-    >
+    <nav className="p-4 border-b border-[var(--border)] bg-white">
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>

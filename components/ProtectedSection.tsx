@@ -17,9 +17,5 @@ export default function ProtectedSection({
   }, [user, loading, router]);
 
   if (loading) return null;
-  return (
-    <div style={{ backgroundColor: "#f5f5dc", minHeight: "100vh" }}>
-      {children}
-    </div>
-  );
+  return <div className="bg-[var(--background)] min-h-screen">{children}</div>;
 }

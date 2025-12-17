@@ -15,17 +15,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="antialiased" style={{ margin: "0", padding: "0" }}>
+      <body className="bg-[var(--background)] text-[var(--foreground)]">
         <UserProvider>
-          <div style={{ minHeight: "100vh" }}>
+          <div className="min-h-screen">
             <NavigationBar />
-            <main style={{ padding: "20px" }}>{children}</main>
+            <main className="p-5">{children}</main>
           </div>
         </UserProvider>
       </body>

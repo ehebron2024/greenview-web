@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
-
 import { cn } from "@/lib/utils";
 
 function NavigationMenu({
@@ -59,55 +58,21 @@ function NavigationMenuButton({
   onClick,
   children,
   variant = "default",
+  className,
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "default" | "primary";
 }) {
-  const baseStyles = {
-    padding: "8px 16px",
-    fontSize: "14px",
-    fontWeight: "500",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    transition: "all 0.2s",
-    fontFamily: "'Open Sans', sans-serif",
-  };
-
-  const variantStyles = {
-    default: {
-      backgroundColor: "transparent",
-      color: "#013220",
-    },
-    primary: {
-      backgroundColor: "#2e7d32",
-      color: "#ffffff",
-    },
-  };
-
-  const style = {
-    ...baseStyles,
-    ...variantStyles[variant],
-  };
-
   return (
     <button
       onClick={onClick}
-      style={style}
-      onMouseEnter={(e) => {
-        if (variant === "default") {
-          e.currentTarget.style.backgroundColor = "#e8f5e9";
-        } else {
-          e.currentTarget.style.backgroundColor = "#1b5e20";
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (variant === "default") {
-          e.currentTarget.style.backgroundColor = "transparent";
-        } else {
-          e.currentTarget.style.backgroundColor = "#2e7d32";
-        }
-      }}
+      className={cn(
+        "px-4 py-2 text-sm font-medium rounded-md transition-all",
+        variant === "default"
+          ? "text-[var(--foreground)] hover:bg-[var(--accent)]"
+          : "bg-green-700 text-white hover:bg-green-800",
+        className
+      )}
       {...props}
     >
       {children}
@@ -117,35 +82,13 @@ function NavigationMenuButton({
 
 function NavigationMenuCenter() {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "4px",
-        flex: 1,
-        justifyContent: "center",
-      }}
-    >
+    <div className="flex flex-col items-center gap-1 flex-1 justify-center">
       <img
         src="/print_transparent.svg"
         alt="GreenView Logo"
-        style={{
-          width: "40px",
-          height: "40px",
-        }}
+        className="w-10 h-10"
       />
-      <h1
-        style={{
-          margin: "0",
-          fontSize: "14px",
-          fontWeight: "700",
-          color: "#013220",
-          letterSpacing: "0.5px",
-          fontFamily: "'Open Sans', sans-serif",
-          whiteSpace: "nowrap",
-        }}
-      >
+      <h1 className="text-sm font-bold text-[var(--foreground)] tracking-wide whitespace-nowrap">
         Greenview Renovation
       </h1>
     </div>
