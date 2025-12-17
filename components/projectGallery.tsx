@@ -7,18 +7,54 @@ import {
   DocumentData,
   doc,
   getDoc,
+  getDocs,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
+import {
+  FolderOpen,
+  Calendar,
+  MapPin,
+  DollarSign,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+
+interface Project extends DocumentData {
+  id: string;
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  location?: string;
+  status?: string;
+  startDate?: any;
+  budget?: number;
+  roomCount?: number;
+  contact?: string;
+  createdAt?: any;
+  lastUpdated?: any;
+}
+
+interface Room {
+  id: string;
+  name: string;
+  status?: string;
+  description?: string;
+}
 
 const ProjectGallery: React.FC = () => {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userName, setUserName] = useState<string>("");
-  const [projects, setProjects] = useState<DocumentData[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
-    null
+  const [expandedProject, setExpandedProject] = useState<string | null>(null);
+  const [projectRooms, setProjectRooms] = useState<{ [key: string]: Room[] }>(
+    {}
+  );
+  const [loadingRooms, setLoadingRooms] = useState<{ [key: string]: boolean }>(
+    {}
   );
 
   useEffect(() => {
@@ -30,7 +66,6 @@ const ProjectGallery: React.FC = () => {
     return () => unsubscribeAuth();
   }, []);
 
-  // Fetch user name from Firestore
   useEffect(() => {
     if (currentUser) {
       const fetchUserName = async () => {
@@ -64,9 +99,9 @@ const ProjectGallery: React.FC = () => {
       unsubscribeFirestore = onSnapshot(
         userProjectsCollectionRef,
         (querySnapshot) => {
-          const userProjects: DocumentData[] = [];
+          const userProjects: Project[] = [];
           querySnapshot.forEach((doc) => {
-            userProjects.push({ id: doc.id, ...doc.data() });
+            userProjects.push({ id: doc.id, ...doc.data() } as Project);
           });
           setProjects(userProjects);
           setError(null);
@@ -88,7 +123,6 @@ const ProjectGallery: React.FC = () => {
   }, [currentUser]);
 
   const handleProjectClick = (projectId: string) => {
-    setSelectedProjectId(projectId);
     if (currentUser) {
       router.push(
         `/${currentUser.uid}/userProjects/projectInfo?projectId=${projectId}`
@@ -96,98 +130,284 @@ const ProjectGallery: React.FC = () => {
     }
   };
 
+  const toggleRooms = async (projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (expandedProject === projectId) {
+      setExpandedProject(null);
+      return;
+    }
+
+    setExpandedProject(projectId);
+
+    // Fetch rooms if not already loaded
+    if (!projectRooms[projectId] && currentUser) {
+      setLoadingRooms({ ...loadingRooms, [projectId]: true });
+      try {
+        const roomsRef = collection(
+          db,
+          "users",
+          currentUser.uid,
+          "projects",
+          projectId,
+          "rooms"
+        );
+        const roomsSnap = await getDocs(roomsRef);
+        const rooms: Room[] = [];
+        roomsSnap.forEach((doc) => {
+          rooms.push({ id: doc.id, ...doc.data() } as Room);
+        });
+        setProjectRooms({ ...projectRooms, [projectId]: rooms });
+      } catch (err) {
+        console.error("Error fetching rooms:", err);
+      } finally {
+        setLoadingRooms({ ...loadingRooms, [projectId]: false });
+      }
+    }
+  };
+
+  const navigateToRoom = (
+    projectId: string,
+    roomId: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+    if (currentUser) {
+      router.push(
+        `/${currentUser.uid}/userProjects/projectInfo/roomInfo/${roomId}?projectId=${projectId}`
+      );
+    }
+  };
+
+  const formatDate = (date: any) => {
+    if (!date) return null;
+    const dateObj = date.toDate ? date.toDate() : new Date(date);
+    return dateObj.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   if (loading) {
-    return <p>Loading projects...</p>;
+    return (
+      <div className="w-full max-w-7xl mx-auto p-4 md:p-6">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="h-80 bg-gray-200 rounded-xl"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!currentUser) {
-    return <p>Please sign in to view your projects.</p>;
+    return (
+      <div className="w-full max-w-7xl mx-auto p-4 md:p-6">
+        <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
+          <p className="text-gray-500 text-lg">
+            Please sign in to view your projects.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div style={{ padding: "20px", marginBottom: "30px" }}>
-      <h2
-        style={{ color: "#013220", fontWeight: "bold", marginBottom: "20px" }}
-      >
-        {userName}'s Project Gallery
-      </h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {projects.length === 0 ? (
-        <p>You have no projects yet. Start by adding one!</p>
-      ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "20px",
-          }}
-        >
-          {projects.map((project) => (
-            <div
-              key={project.id}
-              onClick={() => handleProjectClick(project.id)}
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                overflow: "hidden",
-                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                cursor: "pointer",
-                transition: "transform 0.2s, boxShadow 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-4px)";
-                e.currentTarget.style.boxShadow =
-                  "0 8px 12px rgba(0, 0, 0, 0.15)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow =
-                  "0 4px 6px rgba(0, 0, 0, 0.1)";
-              }}
-            >
+    <div className="w-full max-w-7xl mx-auto p-4 md:p-6">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+          {userName ? `${userName}'s Projects` : "Projects"}
+        </h1>
+        <p className="text-gray-600 text-lg">
+          {projects.length} {projects.length === 1 ? "project" : "projects"}
+        </p>
+      </div>
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-700">{error}</p>
+        </div>
+      )}
+
+      {/* Projects Grid */}
+      {projects.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {projects.map((project) => {
+            const startDate = formatDate(project.startDate);
+            const isExpanded = expandedProject === project.id;
+            const rooms = projectRooms[project.id] || [];
+            const isLoadingRooms = loadingRooms[project.id];
+
+            return (
               <div
-                style={{
-                  width: "100%",
-                  height: "150px",
-                  backgroundColor: "#f0f0f0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  overflow: "hidden",
-                }}
+                key={project.id}
+                className="group bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-lg transition-all duration-300"
               >
-                {project.imageUrl ? (
-                  <img
-                    src={project.imageUrl}
-                    alt={project.name}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                ) : (
-                  <img
-                    src="/fulllogo.jpg"
-                    alt="GreenView Logo"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
-                  />
+                <div
+                  onClick={() => handleProjectClick(project.id)}
+                  className="cursor-pointer"
+                >
+                  {/* Project Image */}
+                  <div className="relative h-48 bg-gray-100 overflow-hidden">
+                    {project.imageUrl ? (
+                      <img
+                        src={project.imageUrl}
+                        alt={project.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <img
+                          src="/fulllogo.jpg"
+                          alt="GreenView Logo"
+                          className="w-full h-full object-contain p-4"
+                        />
+                      </div>
+                    )}
+
+                    {/* Status Badge */}
+                    {project.status && (
+                      <div className="absolute top-3 right-3">
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold border bg-gray-100 text-gray-700 border-gray-200 backdrop-blur-sm">
+                          {project.status.replace("-", " ")}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Project Info */}
+                  <div className="p-5">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                      {project.name}
+                    </h3>
+
+                    {project.description && (
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {project.description}
+                      </p>
+                    )}
+
+                    {/* Project Details */}
+                    <div className="space-y-2">
+                      {project.location && (
+                        <div className="flex items-center gap-2 text-gray-600 text-sm">
+                          <MapPin className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">{project.location}</span>
+                        </div>
+                      )}
+
+                      {startDate && (
+                        <div className="flex items-center gap-2 text-gray-600 text-sm">
+                          <Calendar className="w-4 h-4 flex-shrink-0" />
+                          <span>{startDate}</span>
+                        </div>
+                      )}
+
+                      {project.budget !== undefined && (
+                        <div className="flex items-center gap-2 text-gray-600 text-sm">
+                          <DollarSign className="w-4 h-4 flex-shrink-0" />
+                          <span>${project.budget.toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rooms Toggle Button */}
+                <button
+                  onClick={(e) => toggleRooms(project.id, e)}
+                  className="w-full px-5 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between text-sm font-medium text-gray-700 border-t border-gray-200"
+                >
+                  <span>
+                    View{" "}
+                    {project.roomCount !== undefined
+                      ? `${project.roomCount} `
+                      : ""}
+                    {project.roomCount === 1 ? "Room" : "Rooms"}
+                  </span>
+                  {isExpanded ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
+                </button>
+
+                {/* Rooms Section */}
+                {isExpanded && (
+                  <div className="border-t border-gray-200 bg-gray-50 p-4">
+                    {/* New Room Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (currentUser) {
+                          router.push(
+                            `/${currentUser.uid}/userProjects/projectInfo/roomInfo/newRoom?projectId=${project.id}`
+                          );
+                        }
+                      }}
+                      className="w-full mb-3 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition text-sm"
+                    >
+                      + New Room
+                    </button>
+
+                    {isLoadingRooms ? (
+                      <div className="text-center py-4 text-gray-500 text-sm">
+                        Loading rooms...
+                      </div>
+                    ) : rooms.length > 0 ? (
+                      <div className="space-y-2 max-h-60 overflow-y-auto">
+                        {rooms.map((room) => (
+                          <div
+                            key={room.id}
+                            onClick={(e) =>
+                              navigateToRoom(project.id, room.id, e)
+                            }
+                            className="bg-white p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <p className="font-medium text-gray-900 text-sm">
+                                  {room.name}
+                                </p>
+                                {room.description && (
+                                  <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                                    {room.description}
+                                  </p>
+                                )}
+                              </div>
+                              {room.status && (
+                                <span className="ml-2 px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                                  {room.status}
+                                </span>
+                              )}
+                              <ChevronRight className="w-4 h-4 text-gray-400 ml-2 flex-shrink-0" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-4 text-gray-500 text-sm">
+                        No rooms yet
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
-              <div style={{ padding: "10px" }}>
-                <h3 style={{ fontSize: "18px", fontWeight: "bold" }}>
-                  {project.name}
-                </h3>
-                <p style={{ fontSize: "14px", color: "#555" }}>
-                  {project.description}
-                </p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
+        </div>
+      ) : (
+        <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
+          <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-500 text-lg font-medium">No projects found</p>
+          <p className="text-gray-400 text-sm mt-1">
+            You have no projects yet. Start by adding one!
+          </p>
         </div>
       )}
     </div>

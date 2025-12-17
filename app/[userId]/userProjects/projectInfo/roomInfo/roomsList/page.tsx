@@ -12,6 +12,9 @@ interface Room {
   name: string;
   description?: string;
   status?: string;
+  dimensions?: string; // e.g., "12x15 ft" or structured; adjust type if needed
+  images?: string[]; // array of image URLs
+  startDate?: any; // Firestore Timestamp or ISO string
 }
 
 export default function RoomInfoPage() {
@@ -94,41 +97,99 @@ export default function RoomInfoPage() {
             <p className="text-gray-600">No rooms added yet.</p>
           ) : (
             <div className="space-y-3">
-              {rooms.map((room) => (
-                <div
-                  key={room.id}
-                  className="flex justify-between items-center px-4 py-3 border rounded-lg"
-                >
-                  <div>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {room.name}
-                    </p>
-                    {room.description && (
-                      <p className="text-sm text-gray-600">
-                        {room.description}
-                      </p>
+              {rooms.map((room) => {
+                const startDate = room.startDate
+                  ? (room.startDate.toDate
+                      ? room.startDate.toDate()
+                      : new Date(room.startDate)
+                    ).toLocaleDateString()
+                  : null;
+
+                return (
+                  <div
+                    key={room.id}
+                    onClick={() =>
+                      router.push(
+                        `/${userId}/userProjects/projectInfo/roomInfo/${room.id}?projectId=${projectId}`
+                      )
+                    }
+                    className="flex flex-col gap-3 px-4 py-3 border rounded-lg cursor-pointer hover:shadow-md transition"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-lg font-semibold text-gray-900">
+                          {room.name}
+                        </p>
+                        {room.description && (
+                          <p className="text-sm text-gray-600">
+                            {room.description}
+                          </p>
+                        )}
+                        <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-700">
+                          {room.status && (
+                            <span>
+                              <span className="font-medium">Status:</span>{" "}
+                              {room.status}
+                            </span>
+                          )}
+                          {room.dimensions && (
+                            <span>
+                              <span className="font-medium">Dimensions:</span>{" "}
+                              {room.dimensions}
+                            </span>
+                          )}
+                          {startDate && (
+                            <span>
+                              <span className="font-medium">Start Date:</span>{" "}
+                              {startDate}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(
+                              `/${userId}/userProjects/projectInfo/roomInfo/${room.id}/editRoom?projectId=${projectId}`
+                            );
+                          }}
+                          className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+                        >
+                          Edit Room
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(room.id);
+                          }}
+                          className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+
+                    {room.images && room.images.length > 0 && (
+                      <div className="mt-2 flex gap-2 flex-wrap">
+                        {room.images.slice(0, 4).map((url, idx) => (
+                          <img
+                            key={idx}
+                            src={url}
+                            alt={`${room.name} image ${idx + 1}`}
+                            className="h-20 w-28 object-cover rounded border"
+                          />
+                        ))}
+                        {room.images.length > 4 && (
+                          <span className="text-xs text-gray-600 self-center">
+                            +{room.images.length - 4} more
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        router.push(
-                          `/${userId}/userProjects/projectInfo/roomInfo/${room.id}/editRoom?projectId=${projectId}`
-                        )
-                      }
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
-                    >
-                      Edit Room
-                    </button>
-                    <button
-                      onClick={() => handleDelete(room.id)}
-                      className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

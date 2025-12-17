@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useParams, useRouter } from "next/navigation";
-import { db } from "@/lib/firebase";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
-import { auth } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import ShareProject from "@/components/share-project";
+import { Share2 } from "lucide-react";
 
 interface Room {
   id: string;
@@ -27,6 +28,17 @@ interface Project {
   startDate?: any;
   userId?: string;
   roomCount?: number;
+  allowCopy?: boolean;
+  isPublic?: boolean;
+  originalOwnerId?: string;
+  originalProjectId?: string;
+  isSharedCopy?: boolean;
+  sharedWith?: Array<{
+    email: string;
+    permission: string;
+    allowCopy: boolean;
+    sharedAt: string;
+  }>;
 }
 
 export default function ProjectInfoPage() {
@@ -36,11 +48,11 @@ export default function ProjectInfoPage() {
   const projectId = searchParams.get("projectId");
   const userId = params.userId as string;
   const [project, setProject] = useState<Project | null>(null);
-  const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
-  const [roomsLoading, setRoomsLoading] = useState(true);
+  const [showShare, setShowShare] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -63,8 +75,6 @@ export default function ProjectInfoPage() {
 
     const fetchProject = async () => {
       try {
-        // Removed incorrect ownership check. The doc path ensures ownership:
-        // users/{userId}/projects/{projectId}
         const docRef = doc(db, "users", userId, "projects", projectId);
         const docSnap = await getDoc(docRef);
 
@@ -87,47 +97,11 @@ export default function ProjectInfoPage() {
     fetchProject();
   }, [projectId, currentUser, userId]);
 
-  // Fetch rooms for the project
   useEffect(() => {
-    if (!projectId || !userId || !currentUser) return;
-
-    const fetchRooms = async () => {
-      try {
-        const roomsRef = collection(
-          db,
-          "users",
-          userId,
-          "projects",
-          projectId,
-          "rooms"
-        );
-        const roomsSnap = await getDocs(roomsRef);
-        const roomsList: Room[] = [];
-
-        roomsSnap.forEach((doc) => {
-          roomsList.push({ id: doc.id, ...doc.data() } as Room);
-        });
-
-        setRooms(roomsList);
-      } catch (err) {
-        console.error("Error fetching rooms:", err);
-      }
-    };
-
-    fetchRooms();
-  }, [projectId, userId, currentUser]);
-
-  useEffect(() => {
-    if (!projectId) return;
-    (async () => {
-      setRoomsLoading(true);
-      const snap = await getDocs(
-        collection(db, "users", userId, "projects", projectId, "rooms")
-      );
-      setRooms(snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })));
-      setRoomsLoading(false);
-    })();
-  }, [userId, projectId]);
+    if (project && currentUser) {
+      setIsOwner(currentUser === userId);
+    }
+  }, [project, currentUser, userId]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -143,9 +117,19 @@ export default function ProjectInfoPage() {
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow p-8 mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            {project.name}
-          </h1>
+          {/* Header with Title and Share Button */}
+          <div className="flex justify-between items-start mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
+            {isOwner && (
+              <button
+                onClick={() => setShowShare(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition"
+              >
+                <Share2 className="w-5 h-5" />
+                Share
+              </button>
+            )}
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -224,18 +208,20 @@ export default function ProjectInfoPage() {
           </div>
 
           <div className="flex gap-4 pt-8 border-t mt-8">
-            <button
-              onClick={() => {
-                const params = new URLSearchParams({
-                  projectId: projectId!,
-                  mode: "edit",
-                });
-                router.push(`/${userId}/newProject?${params.toString()}`);
-              }}
-              className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
-            >
-              Edit Project
-            </button>
+            {isOwner && (
+              <button
+                onClick={() => {
+                  const params = new URLSearchParams({
+                    projectId: projectId!,
+                    mode: "edit",
+                  });
+                  router.push(`/${userId}/newProject?${params.toString()}`);
+                }}
+                className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+              >
+                Edit Project
+              </button>
+            )}
             <button
               onClick={() => router.back()}
               className="flex-1 bg-gray-300 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-400 transition"
@@ -253,77 +239,30 @@ export default function ProjectInfoPage() {
               <button
                 onClick={() =>
                   router.push(
-                    `/${userId}/userProjects/projectInfo/roomInfo/newRoom?projectId=${projectId}`
+                    `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
                   )
                 }
-                className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
               >
-                + Add Room
+                {project.name ? `${project.name} Rooms` : "Project's Rooms"}
               </button>
-              {rooms.length > 0 && (
-                <button
-                  onClick={() =>
-                    router.push(
-                      `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
-                    )
-                  }
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
-                >
-                  Manage Rooms
-                </button>
-              )}
             </div>
           </div>
-
-          {roomsLoading ? (
-            <p className="text-gray-600">Loading rooms...</p>
-          ) : rooms.length === 0 ? (
-            <p className="text-gray-600">No rooms added yet.</p>
-          ) : (
-            <div className="space-y-3">
-              {rooms.slice(0, 5).map((room) => (
-                <div
-                  key={room.id}
-                  className="flex justify-between items-center px-4 py-3 border rounded-lg hover:bg-gray-50"
-                >
-                  <div>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {room.name}
-                    </p>
-                    {room.description && (
-                      <p className="text-sm text-gray-600">
-                        {room.description}
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    onClick={() =>
-                      router.push(
-                        `/${userId}/userProjects/projectInfo/roomInfo/${room.id}/editRoom?projectId=${projectId}`
-                      )
-                    }
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
-                  >
-                    Edit
-                  </button>
-                </div>
-              ))}
-              {rooms.length > 5 && (
-                <button
-                  onClick={() =>
-                    router.push(
-                      `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
-                    )
-                  }
-                  className="w-full text-center text-blue-700 font-medium py-2 hover:underline"
-                >
-                  View all {rooms.length} rooms
-                </button>
-              )}
-            </div>
-          )}
+          <p className="text-gray-600">
+            View and manage rooms on the next page.
+          </p>
         </div>
       </div>
+
+      {/* Share Project Modal */}
+      {showShare && isOwner && projectId && (
+        <ShareProject
+          projectId={projectId}
+          projectName={project.name}
+          userId={userId}
+          onClose={() => setShowShare(false)}
+        />
+      )}
     </div>
   );
 }

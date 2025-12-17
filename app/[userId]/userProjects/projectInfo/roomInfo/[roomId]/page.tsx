@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { auth } from "@/lib/firebase";
@@ -26,9 +26,10 @@ interface Room {
 
 export default function RoomDetailPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const roomId = params.roomId as string;
-  const projectId = params.projectId as string;
+  const projectId = searchParams.get("projectId") as string | null;
   const userId = params.userId as string;
   const [room, setRoom] = useState<Room | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -228,12 +229,24 @@ export default function RoomDetailPage() {
           )}
 
           <div className="border-t pt-8">
-            <button
-              onClick={() => router.back()}
-              className="bg-gray-300 text-gray-800 py-2 px-6 rounded-lg font-medium hover:bg-gray-400 transition"
-            >
-              Back
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={() =>
+                  router.push(
+                    `/${userId}/userProjects/projectInfo/roomInfo/${roomId}/editRoom?projectId=${projectId}`
+                  )
+                }
+                className="bg-blue-600 text-white py-2 px-6 rounded-lg font-medium hover:bg-blue-700 transition"
+              >
+                Edit Room
+              </button>
+              <button
+                onClick={() => router.back()}
+                className="bg-gray-300 text-gray-800 py-2 px-6 rounded-lg font-medium hover:bg-gray-400 transition"
+              >
+                Back
+              </button>
+            </div>
           </div>
         </div>
 

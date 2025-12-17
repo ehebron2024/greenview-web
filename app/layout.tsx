@@ -1,18 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { UserProvider } from "@/context/UserContext";
 import NavigationBar from "@/components/NavigationBar";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Greenview Renovation",
@@ -26,13 +15,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={{ position: "relative", margin: "0", padding: "0" }}
-      >
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="antialiased" style={{ margin: "0", padding: "0" }}>
         <UserProvider>
-          <NavigationBar />
-          {children}
+          <div style={{ minHeight: "100vh" }}>
+            <NavigationBar />
+            <main style={{ padding: "20px" }}>{children}</main>
+          </div>
         </UserProvider>
       </body>
     </html>
