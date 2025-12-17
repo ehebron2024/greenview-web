@@ -9,8 +9,12 @@ import { db, app } from "@/lib/firebase";
 function getFirstNameFromEmail(email: string | null): string {
   if (!email) return "User";
   const namePart = email.split("@")[0];
-  const firstName = namePart.split(/[._-]/)[0];
-  return firstName.charAt(0).toUpperCase() + firstName.slice(1);
+  const nameParts = namePart.split(/[._-]/);
+
+  // Capitalize first letter of each word, lowercase the rest
+  return nameParts
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
 }
 
 export default function UserPage() {
@@ -64,6 +68,10 @@ export default function UserPage() {
           alt="GreenView Logo"
           className="w-[150px] mb-5 mx-auto"
         />
+
+        <h2 className="text-2xl font-bold mb-4 text-foreground">
+          Welcome, {firstName}!
+        </h2>
 
         {/* Projects Button */}
         <button

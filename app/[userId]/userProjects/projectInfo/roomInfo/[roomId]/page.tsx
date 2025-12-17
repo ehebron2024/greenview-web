@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -37,6 +44,10 @@ export default function RoomDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showAddTask, setShowAddTask] = useState(false);
+  const [newTaskName, setNewTaskName] = useState("");
+  const [newTaskStatus, setNewTaskStatus] = useState("pending");
+  const [addingTask, setAddingTask] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -88,36 +99,71 @@ export default function RoomDetailPage() {
     fetchRoom();
   }, [projectId, roomId, currentUser, userId]);
 
-  useEffect(() => {
+  const fetchTasks = async () => {
     if (!projectId || !roomId || !userId || !currentUser) return;
 
-    const fetchTasks = async () => {
-      try {
-        const tasksRef = collection(
-          db,
-          "users",
-          userId,
-          "projects",
-          projectId,
-          "rooms",
-          roomId,
-          "tasks"
-        );
-        const tasksSnap = await getDocs(tasksRef);
-        const tasksList: Task[] = [];
+    try {
+      const tasksRef = collection(
+        db,
+        "users",
+        userId,
+        "projects",
+        projectId,
+        "rooms",
+        roomId,
+        "tasks"
+      );
+      const tasksSnap = await getDocs(tasksRef);
+      const tasksList: Task[] = [];
 
-        tasksSnap.forEach((doc) => {
-          tasksList.push({ id: doc.id, ...doc.data() } as Task);
-        });
+      tasksSnap.forEach((doc) => {
+        tasksList.push({ id: doc.id, ...doc.data() } as Task);
+      });
 
-        setTasks(tasksList);
-      } catch (err) {
-        console.error("Error fetching tasks:", err);
-      }
-    };
+      setTasks(tasksList);
+    } catch (err) {
+      console.error("Error fetching tasks:", err);
+    }
+  };
 
+  useEffect(() => {
     fetchTasks();
   }, [projectId, roomId, userId, currentUser]);
+
+  const handleAddTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTaskName.trim() || !projectId || !roomId || !userId) return;
+
+    setAddingTask(true);
+    try {
+      const tasksRef = collection(
+        db,
+        "users",
+        userId,
+        "projects",
+        projectId,
+        "rooms",
+        roomId,
+        "tasks"
+      );
+
+      await addDoc(tasksRef, {
+        name: newTaskName.trim(),
+        status: newTaskStatus,
+        createdAt: serverTimestamp(),
+      });
+
+      setNewTaskName("");
+      setNewTaskStatus("pending");
+      setShowAddTask(false);
+      await fetchTasks();
+    } catch (err) {
+      console.error("Error adding task:", err);
+      alert("Failed to add task");
+    } finally {
+      setAddingTask(false);
+    }
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -251,7 +297,57 @@ export default function RoomDetailPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Tasks</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Tasks</h2>
+            <button
+              onClick={() => setShowAddTask(!showAddTask)}
+              className="bg-green-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-700 transition"
+            >
+              {showAddTask ? "Cancel" : "+ Add Task"}
+            </button>
+          </div>
+
+          {showAddTask && (
+            <form
+              onSubmit={handleAddTask}
+              className="mb-6 p-4 border rounded-lg bg-gray-50"
+            >
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Task Name
+                </label>
+                <input
+                  type="text"
+                  value={newTaskName}
+                  onChange={(e) => setNewTaskName(e.target.value)}
+                  placeholder="Enter task name"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <select
+                  value={newTaskStatus}
+                  onChange={(e) => setNewTaskStatus(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                disabled={addingTask}
+                className="bg-blue-600 text-white py-2 px-6 rounded-lg font-medium hover:bg-blue-700 transition disabled:bg-gray-400"
+              >
+                {addingTask ? "Adding..." : "Add Task"}
+              </button>
+            </form>
+          )}
 
           {tasks.length === 0 ? (
             <p className="text-gray-600">No tasks added yet.</p>

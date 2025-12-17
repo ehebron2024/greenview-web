@@ -42,6 +42,17 @@ interface Room {
   description?: string;
 }
 
+function getCapitalizedNameFromEmail(email: string | null): string {
+  if (!email) return "User";
+  const namePart = email.split("@")[0];
+  const nameParts = namePart.split(/[._-]/);
+
+  // Capitalize first letter of each word, lowercase the rest
+  return nameParts
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
 const ProjectGallery: React.FC = () => {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -73,11 +84,14 @@ const ProjectGallery: React.FC = () => {
           const userDocRef = doc(db, "users", currentUser.uid);
           const userSnap = await getDoc(userDocRef);
           if (userSnap.exists()) {
-            setUserName(userSnap.data().name || currentUser.email || "");
+            const email = userSnap.data().email || currentUser.email || "";
+            setUserName(getCapitalizedNameFromEmail(email));
+          } else {
+            setUserName(getCapitalizedNameFromEmail(currentUser.email));
           }
         } catch (err) {
           console.error("Error fetching user name:", err);
-          setUserName(currentUser.email || "");
+          setUserName(getCapitalizedNameFromEmail(currentUser.email));
         }
       };
 
