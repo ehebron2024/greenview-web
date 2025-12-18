@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import SignInForm from "@/components/authentication/signInForm";
+import SignUpForm from "@/components/authentication/signUpForm";
 import { getAuth } from "firebase/auth";
 import { db } from "@/lib/firebase";
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [showSignUp, setShowSignUp] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -27,6 +28,12 @@ export default function Home() {
   }, []);
 
   const handleSignInSuccess = (id: string) => {
+    setIsLoggedIn(true);
+    setUserId(id);
+    router.push(`/${id}`);
+  };
+
+  const handleSignUpSuccess = (id: string) => {
     setIsLoggedIn(true);
     setUserId(id);
     router.push(`/${id}`);
@@ -53,16 +60,33 @@ export default function Home() {
       {/* Conditional Rendering for Forms */}
       {!isLoggedIn ? (
         <div className="w-full max-w-md">
-          <SignInForm onSignInSuccess={handleSignInSuccess} />
-          <p className="mt-5 text-center text-foreground">
-            Don't have an account?{" "}
-            <Link
-              href="/signup"
-              className="text-primary underline cursor-pointer hover:text-accent"
-            >
-              Sign Up
-            </Link>
-          </p>
+          {showSignUp ? (
+            <>
+              <SignUpForm onSignUpSuccess={handleSignUpSuccess} />
+              <p className="mt-5 text-center text-foreground">
+                Already have an account?{" "}
+                <button
+                  onClick={() => setShowSignUp(false)}
+                  className="text-primary underline cursor-pointer hover:text-accent bg-transparent border-none font-inherit"
+                >
+                  Sign In
+                </button>
+              </p>
+            </>
+          ) : (
+            <>
+              <SignInForm onSignInSuccess={handleSignInSuccess} />
+              <p className="mt-5 text-center text-foreground">
+                Don't have an account?{" "}
+                <button
+                  onClick={() => setShowSignUp(true)}
+                  className="text-primary underline cursor-pointer hover:text-accent bg-transparent border-none font-inherit"
+                >
+                  Sign Up
+                </button>
+              </p>
+            </>
+          )}
         </div>
       ) : (
         <button
