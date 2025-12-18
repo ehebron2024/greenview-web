@@ -103,9 +103,31 @@ export default function ProjectInfoPage() {
     }
   }, [project, currentUser, userId]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!project) return <div>No project data</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="bg-destructive/10 border border-destructive text-destructive px-6 py-4 rounded-lg">
+          Error: {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground text-lg">No project data</div>
+      </div>
+    );
+  }
 
   const formatDate = (date: any) => {
     if (!date) return "N/A";
@@ -114,16 +136,18 @@ export default function ProjectInfoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow p-8 mb-8">
+        <div className="bg-card rounded-lg shadow-lg border border-border p-8 mb-8">
           {/* Header with Title and Share Button */}
           <div className="flex justify-between items-start mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
+            <h1 className="text-3xl font-bold text-foreground">
+              {project.name}
+            </h1>
             {isOwner && (
               <button
                 onClick={() => setShowShare(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition"
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-accent transition-colors shadow-sm"
               >
                 <Share2 className="w-5 h-5" />
                 Share
@@ -133,44 +157,54 @@ export default function ProjectInfoPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm font-medium text-gray-600">Status</p>
-              <p className="text-lg text-gray-900">{project.status}</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Status
+              </p>
+              <p className="text-lg text-foreground">{project.status}</p>
             </div>
 
             {project.number && (
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-medium text-muted-foreground">
                   Project Number
                 </p>
-                <p className="text-lg text-gray-900">{project.number}</p>
+                <p className="text-lg text-foreground">{project.number}</p>
               </div>
             )}
 
             {project.description && (
               <div className="col-span-2">
-                <p className="text-sm font-medium text-gray-600">Description</p>
-                <p className="text-lg text-gray-900">{project.description}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Description
+                </p>
+                <p className="text-lg text-foreground">{project.description}</p>
               </div>
             )}
 
             {project.location && (
               <div>
-                <p className="text-sm font-medium text-gray-600">Location</p>
-                <p className="text-lg text-gray-900">{project.location}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Location
+                </p>
+                <p className="text-lg text-foreground">{project.location}</p>
               </div>
             )}
 
             {project.contact && (
               <div>
-                <p className="text-sm font-medium text-gray-600">Contact</p>
-                <p className="text-lg text-gray-900">{project.contact}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Contact
+                </p>
+                <p className="text-lg text-foreground">{project.contact}</p>
               </div>
             )}
 
             {project.budget && (
               <div>
-                <p className="text-sm font-medium text-gray-600">Budget</p>
-                <p className="text-lg text-gray-900">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Budget
+                </p>
+                <p className="text-lg text-foreground">
                   ${project.budget.toLocaleString()}
                 </p>
               </div>
@@ -178,8 +212,10 @@ export default function ProjectInfoPage() {
 
             {project.startDate && (
               <div>
-                <p className="text-sm font-medium text-gray-600">Start Date</p>
-                <p className="text-lg text-gray-900">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Start Date
+                </p>
+                <p className="text-lg text-foreground">
                   {formatDate(project.startDate)}
                 </p>
               </div>
@@ -187,27 +223,33 @@ export default function ProjectInfoPage() {
 
             {project.roomCount && (
               <div>
-                <p className="text-sm font-medium text-gray-600">Room Count</p>
-                <p className="text-lg text-gray-900">{project.roomCount}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Room Count
+                </p>
+                <p className="text-lg text-foreground">{project.roomCount}</p>
               </div>
             )}
 
             <div>
-              <p className="text-sm font-medium text-gray-600">Created</p>
-              <p className="text-lg text-gray-900">
+              <p className="text-sm font-medium text-muted-foreground">
+                Created
+              </p>
+              <p className="text-lg text-foreground">
                 {formatDate(project.createdAt)}
               </p>
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-600">Last Updated</p>
-              <p className="text-lg text-gray-900">
+              <p className="text-sm font-medium text-muted-foreground">
+                Last Updated
+              </p>
+              <p className="text-lg text-foreground">
                 {formatDate(project.lastUpdated)}
               </p>
             </div>
           </div>
 
-          <div className="flex gap-4 pt-8 border-t mt-8">
+          <div className="flex gap-4 pt-8 border-t border-border mt-8">
             {isOwner && (
               <button
                 onClick={() => {
@@ -217,14 +259,14 @@ export default function ProjectInfoPage() {
                   });
                   router.push(`/${userId}/newProject?${params.toString()}`);
                 }}
-                className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+                className="flex-1 bg-primary text-primary-foreground py-2 rounded-lg font-medium hover:bg-accent transition-colors shadow-sm"
               >
                 Edit Project
               </button>
             )}
             <button
               onClick={() => router.back()}
-              className="flex-1 bg-gray-300 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-400 transition"
+              className="flex-1 bg-secondary text-secondary-foreground py-2 rounded-lg font-medium hover:bg-secondary/80 transition-colors shadow-sm"
             >
               Back
             </button>
@@ -232,9 +274,9 @@ export default function ProjectInfoPage() {
         </div>
 
         {/* Rooms Navigation */}
-        <div className="bg-white rounded-lg shadow p-8">
+        <div className="bg-card rounded-lg shadow-lg border border-border p-8">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Rooms</h2>
+            <h2 className="text-2xl font-bold text-foreground">Rooms</h2>
             <div className="flex gap-2">
               <button
                 onClick={() =>
@@ -242,13 +284,13 @@ export default function ProjectInfoPage() {
                     `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
                   )
                 }
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+                className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-accent transition-colors shadow-sm"
               >
                 {project.name ? `${project.name} Rooms` : "Project's Rooms"}
               </button>
             </div>
           </div>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             View and manage rooms on the next page.
           </p>
         </div>

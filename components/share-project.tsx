@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import {
   Share2,
@@ -144,7 +146,6 @@ const ShareProject: React.FC<ShareProjectProps> = ({
     setError(null);
 
     try {
-      // Store share invitation in Firestore
       const shareRef = collection(
         db,
         "users",
@@ -163,7 +164,6 @@ const ShareProject: React.FC<ShareProjectProps> = ({
         status: "pending",
       });
 
-      // Update project with shared users
       const projectRef = doc(db, "users", userId, "projects", projectId);
       await updateDoc(projectRef, {
         sharedWith: arrayUnion({
@@ -178,7 +178,6 @@ const ShareProject: React.FC<ShareProjectProps> = ({
       setEmailSending(false);
       setEmailSent(true);
 
-      // Reset form after success
       setTimeout(() => {
         setEmail("");
         setEmailMessage("");
@@ -193,9 +192,9 @@ const ShareProject: React.FC<ShareProjectProps> = ({
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div className="bg-white rounded-xl p-8">
-          <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div className="bg-card rounded-xl p-8 shadow-lg">
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
         </div>
       </div>
     );
@@ -203,12 +202,14 @@ const ShareProject: React.FC<ShareProjectProps> = ({
 
   if (!currentUser || currentUser !== userId) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div className="bg-white rounded-xl p-8 max-w-md">
-          <p className="text-red-600 font-medium mb-4">Unauthorized access</p>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="bg-card rounded-xl p-8 max-w-md border border-border shadow-lg">
+          <p className="text-destructive font-medium mb-4">
+            Unauthorized access
+          </p>
           <button
             onClick={onClose}
-            className="w-full px-4 py-2 bg-gray-300 rounded-lg"
+            className="w-full px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
           >
             Close
           </button>
@@ -218,25 +219,27 @@ const ShareProject: React.FC<ShareProjectProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="bg-card rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-border">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Share2 className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+              <Share2 className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Share Project</h2>
-              <p className="text-sm text-gray-600">{projectName}</p>
+              <h2 className="text-xl font-bold text-foreground">
+                Share Project
+              </h2>
+              <p className="text-sm text-muted-foreground">{projectName}</p>
             </div>
           </div>
           {onClose && (
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
             >
-              <X className="w-5 h-5 text-gray-600" />
+              <X className="w-5 h-5 text-muted-foreground" />
             </button>
           )}
         </div>
@@ -244,19 +247,19 @@ const ShareProject: React.FC<ShareProjectProps> = ({
         <div className="p-6 space-y-6">
           {/* Error Message */}
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-700">{error}</p>
+            <div className="p-3 bg-destructive/10 border border-destructive rounded-lg">
+              <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
 
           {/* Share Method Tabs */}
-          <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
+          <div className="flex gap-2 p-1 bg-muted rounded-lg">
             <button
               onClick={() => setShareMethod("link")}
               className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-colors ${
                 shareMethod === "link"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <Link2 className="w-4 h-4" />
@@ -266,8 +269,8 @@ const ShareProject: React.FC<ShareProjectProps> = ({
               onClick={() => setShareMethod("email")}
               className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-colors ${
                 shareMethod === "email"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <Mail className="w-4 h-4" />
@@ -279,23 +282,23 @@ const ShareProject: React.FC<ShareProjectProps> = ({
           {shareMethod === "link" && (
             <div className="space-y-4">
               {/* Public Toggle */}
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-foreground">
                     Make project public
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Anyone with the link can view
                   </p>
                 </div>
                 <button
                   onClick={handleTogglePublic}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    isPublic ? "bg-blue-600" : "bg-gray-300"
+                    isPublic ? "bg-primary" : "bg-border"
                   }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    className={`inline-block h-4 w-4 transform rounded-full bg-card transition-transform ${
                       isPublic ? "translate-x-6" : "translate-x-1"
                     }`}
                   />
@@ -303,23 +306,23 @@ const ShareProject: React.FC<ShareProjectProps> = ({
               </div>
 
               {/* Allow Copy Toggle */}
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-foreground">
                     Allow copying to their projects
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Let others save a copy to their account
                   </p>
                 </div>
                 <button
                   onClick={handleToggleAllowCopy}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    allowCopy ? "bg-blue-600" : "bg-gray-300"
+                    allowCopy ? "bg-primary" : "bg-border"
                   }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    className={`inline-block h-4 w-4 transform rounded-full bg-card transition-transform ${
                       allowCopy ? "translate-x-6" : "translate-x-1"
                     }`}
                   />
@@ -328,7 +331,7 @@ const ShareProject: React.FC<ShareProjectProps> = ({
 
               {/* Copy Link */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Share Link
                 </label>
                 <div className="flex gap-2">
@@ -336,11 +339,11 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                     type="text"
                     readOnly
                     value={shareLink}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
+                    className="flex-1 px-4 py-2 border border-input rounded-lg bg-background text-foreground text-sm"
                   />
                   <button
                     onClick={handleCopyLink}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-accent transition-colors flex items-center gap-2 font-medium"
                   >
                     {copied ? (
                       <>
@@ -359,7 +362,7 @@ const ShareProject: React.FC<ShareProjectProps> = ({
 
               {/* Permission Level */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Permission Level
                 </label>
                 <div className="flex gap-2">
@@ -367,8 +370,8 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                     onClick={() => setSelectedPermission("view")}
                     className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                       selectedPermission === "view"
-                        ? "bg-blue-100 text-blue-700 border-2 border-blue-600"
-                        : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
+                        ? "bg-primary/10 text-primary border-2 border-primary"
+                        : "bg-muted text-foreground border-2 border-transparent hover:bg-muted/80"
                     }`}
                   >
                     View Only
@@ -377,8 +380,8 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                     onClick={() => setSelectedPermission("edit")}
                     className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                       selectedPermission === "edit"
-                        ? "bg-blue-100 text-blue-700 border-2 border-blue-600"
-                        : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
+                        ? "bg-primary/10 text-primary border-2 border-primary"
+                        : "bg-muted text-foreground border-2 border-transparent hover:bg-muted/80"
                     }`}
                   >
                     Can Edit
@@ -392,7 +395,7 @@ const ShareProject: React.FC<ShareProjectProps> = ({
           {shareMethod === "email" && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Recipient Email
                 </label>
                 <input
@@ -400,12 +403,12 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="colleague@company.com"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Message (Optional)
                 </label>
                 <textarea
@@ -413,12 +416,12 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                   onChange={(e) => setEmailMessage(e.target.value)}
                   placeholder="Add a personal message..."
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Permission Level
                 </label>
                 <div className="flex gap-2">
@@ -426,8 +429,8 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                     onClick={() => setSelectedPermission("view")}
                     className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                       selectedPermission === "view"
-                        ? "bg-blue-100 text-blue-700 border-2 border-blue-600"
-                        : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
+                        ? "bg-primary/10 text-primary border-2 border-primary"
+                        : "bg-muted text-foreground border-2 border-transparent hover:bg-muted/80"
                     }`}
                   >
                     View Only
@@ -436,8 +439,8 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                     onClick={() => setSelectedPermission("edit")}
                     className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                       selectedPermission === "edit"
-                        ? "bg-blue-100 text-blue-700 border-2 border-blue-600"
-                        : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
+                        ? "bg-primary/10 text-primary border-2 border-primary"
+                        : "bg-muted text-foreground border-2 border-transparent hover:bg-muted/80"
                     }`}
                   >
                     Can Edit
@@ -446,17 +449,17 @@ const ShareProject: React.FC<ShareProjectProps> = ({
               </div>
 
               {/* Allow Copy Checkbox */}
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
                 <input
                   type="checkbox"
                   id="allowCopyEmail"
                   checked={allowCopy}
                   onChange={(e) => setAllowCopy(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                  className="w-4 h-4 text-primary rounded focus:ring-2 focus:ring-ring"
                 />
                 <label
                   htmlFor="allowCopyEmail"
-                  className="text-sm text-gray-700 cursor-pointer"
+                  className="text-sm text-foreground cursor-pointer"
                 >
                   Allow recipient to copy this project to their account
                 </label>
@@ -467,15 +470,15 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                 disabled={!email || emailSending}
                 className={`w-full py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
                   !email || emailSending
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    ? "bg-muted text-muted-foreground cursor-not-allowed"
                     : emailSent
-                    ? "bg-green-600 text-white"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-primary text-primary-foreground hover:bg-accent"
                 }`}
               >
                 {emailSending ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
                     <span>Sending...</span>
                   </>
                 ) : emailSent ? (

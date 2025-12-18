@@ -277,7 +277,7 @@ const ProjectGallery: React.FC = () => {
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <img
-                          src="/fulllogo.jpg"
+                          src="/print_transparent.svg"
                           alt="GreenView Logo"
                           className="w-full h-full object-contain p-4"
                         />
