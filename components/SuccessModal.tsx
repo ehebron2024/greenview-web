@@ -5,35 +5,40 @@ import React from "react";
 interface SuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
+  message?: string;
 }
 
-const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onClose }) => {
+export default function SuccessModal({
+  isOpen,
+  onClose,
+  message = "Success!",
+}: SuccessModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50">
-      <div className="bg-[var(--background)] rounded-lg shadow-lg p-8 max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-card border border-border rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
         <div className="text-center">
-          <div className="mb-6 flex justify-center">
-            <img
-              src="/print_transparent.svg"
-              alt="GreenView Logo"
-              className="w-[100px] h-[100px]"
-            />
+          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              className="w-8 h-8 text-primary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
           </div>
-
-          <h2 className="text-2xl font-bold mb-4 text-[var(--foreground)]">
-            Thank You!
-          </h2>
-
-          <p className="text-lg mb-6 text-[var(--foreground)] leading-relaxed">
-            Thanks for helping us make your dream home. Our team will reach out
-            to you shortly.
-          </p>
-
+          <h3 className="text-2xl font-bold text-foreground mb-2">Success!</h3>
+          <p className="text-muted-foreground mb-6">{message}</p>
           <button
             onClick={onClose}
-            className="w-full px-4 py-3 bg-green-700 text-white rounded font-semibold hover:bg-green-800 transition-colors"
+            className="bg-primary text-primary-foreground px-6 py-2.5 rounded-md font-medium hover:bg-accent transition-colors"
           >
             Close
           </button>
@@ -41,6 +46,4 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onClose }) => {
       </div>
     </div>
   );
-};
-
-export default SuccessModal;
+}
