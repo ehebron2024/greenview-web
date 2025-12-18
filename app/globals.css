@@ -108,7 +108,7 @@
   }
   
   body {
-    background-color: var(--background);
+    background-color: var(--card);
     color: var(--foreground);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
@@ -165,13 +165,13 @@
   
   /* Glass effect for modern look */
   .glass-effect {
-    background: oklch(0.99 0.005 85 / 0.8);
+    background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
-    border: 1px solid oklch(0.85 0.015 85 / 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.1);
   }
   
   .dark .glass-effect {
-    background: oklch(0.22 0.04 148 / 0.8);
-    border: 1px solid oklch(0.30 0.04 148 / 0.5);
+    background: rgba(34, 40, 38, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 }

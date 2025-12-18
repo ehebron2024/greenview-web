@@ -221,8 +221,8 @@ const ProjectGallery: React.FC = () => {
   if (!currentUser) {
     return (
       <div className="w-full max-w-7xl mx-auto p-4 md:p-6">
-        <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-          <p className="text-gray-500 text-lg">
+        <div className="text-center py-16 bg-card rounded-xl border border-border">
+          <p className="text-muted-foreground text-lg">
             Please sign in to view your projects.
           </p>
         </div>
@@ -234,10 +234,10 @@ const ProjectGallery: React.FC = () => {
     <div className="w-full max-w-7xl mx-auto p-4 md:p-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
           {userName ? `${userName}'s Projects` : "Projects"}
         </h1>
-        <p className="text-gray-600 text-lg">
+        <p className="text-muted-foreground text-lg">
           {projects.length} {projects.length === 1 ? "project" : "projects"}
         </p>
       </div>
@@ -260,14 +260,14 @@ const ProjectGallery: React.FC = () => {
             return (
               <div
                 key={project.id}
-                className="group bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-lg transition-all duration-300"
+                className="group bg-card rounded-xl overflow-hidden border border-border hover:border-gray-300 shadow-sm hover:shadow-lg transition-all duration-300"
               >
                 <div
                   onClick={() => handleProjectClick(project.id)}
                   className="cursor-pointer"
                 >
                   {/* Project Image */}
-                  <div className="relative h-48 bg-gray-100 overflow-hidden">
+                  <div className="relative h-48 bg-muted overflow-hidden">
                     {project.imageUrl ? (
                       <img
                         src={project.imageUrl}
@@ -287,7 +287,7 @@ const ProjectGallery: React.FC = () => {
                     {/* Status Badge */}
                     {project.status && (
                       <div className="absolute top-3 right-3">
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold border bg-gray-100 text-gray-700 border-gray-200 backdrop-blur-sm">
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold border bg-muted text-gray-700 border-gray-200 backdrop-blur-sm">
                           {project.status.replace("-", " ")}
                         </span>
                       </div>
@@ -296,12 +296,12 @@ const ProjectGallery: React.FC = () => {
 
                   {/* Project Info */}
                   <div className="p-5">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-blue-600 transition-colors">
                       {project.name}
                     </h3>
 
                     {project.description && (
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                      <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                         {project.description}
                       </p>
                     )}
@@ -309,21 +309,21 @@ const ProjectGallery: React.FC = () => {
                     {/* Project Details */}
                     <div className="space-y-2">
                       {project.location && (
-                        <div className="flex items-center gap-2 text-gray-600 text-sm">
+                        <div className="flex items-center gap-2 text-muted-foreground text-sm">
                           <MapPin className="w-4 h-4 flex-shrink-0" />
                           <span className="truncate">{project.location}</span>
                         </div>
                       )}
 
                       {startDate && (
-                        <div className="flex items-center gap-2 text-gray-600 text-sm">
+                        <div className="flex items-center gap-2 text-muted-foreground text-sm">
                           <Calendar className="w-4 h-4 flex-shrink-0" />
                           <span>{startDate}</span>
                         </div>
                       )}
 
                       {project.budget !== undefined && (
-                        <div className="flex items-center gap-2 text-gray-600 text-sm">
+                        <div className="flex items-center gap-2 text-muted-foreground text-sm">
                           <DollarSign className="w-4 h-4 flex-shrink-0" />
                           <span>${project.budget.toLocaleString()}</span>
                         </div>
@@ -335,7 +335,7 @@ const ProjectGallery: React.FC = () => {
                 {/* Rooms Toggle Button */}
                 <button
                   onClick={(e) => toggleRooms(project.id, e)}
-                  className="w-full px-5 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between text-sm font-medium text-gray-700 border-t border-gray-200"
+                  className="w-full px-5 py-3 bg-muted hover:bg-gray-100 transition-colors flex items-center justify-between text-sm font-medium text-gray-700 border-t border-gray-200"
                 >
                   <span>
                     View{" "}
@@ -353,7 +353,7 @@ const ProjectGallery: React.FC = () => {
 
                 {/* Rooms Section */}
                 {isExpanded && (
-                  <div className="border-t border-gray-200 bg-gray-50 p-4">
+                  <div className="border-t border-gray-200 bg-muted p-4">
                     {/* New Room Button */}
                     <button
                       onClick={(e) => {
@@ -364,7 +364,7 @@ const ProjectGallery: React.FC = () => {
                           );
                         }
                       }}
-                      className="w-full mb-3 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition text-sm"
+                      className="w-full mb-3 px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-blue-700 transition text-sm"
                     >
                       + New Room
                     </button>
@@ -381,11 +381,11 @@ const ProjectGallery: React.FC = () => {
                             onClick={(e) =>
                               navigateToRoom(project.id, room.id, e)
                             }
-                            className="bg-white p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
+                            className="bg-card p-3 rounded-lg border border-border hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex-1">
-                                <p className="font-medium text-gray-900 text-sm">
+                                <p className="font-medium text-foreground text-sm">
                                   {room.name}
                                 </p>
                                 {room.description && (
@@ -395,7 +395,7 @@ const ProjectGallery: React.FC = () => {
                                 )}
                               </div>
                               {room.status && (
-                                <span className="ml-2 px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                                <span className="ml-2 px-2 py-1 rounded text-xs font-medium bg-muted text-gray-600">
                                   {room.status}
                                 </span>
                               )}
@@ -416,9 +416,11 @@ const ProjectGallery: React.FC = () => {
           })}
         </div>
       ) : (
-        <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
+        <div className="text-center py-16 bg-card rounded-xl border border-border">
           <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 text-lg font-medium">No projects found</p>
+          <p className="text-muted-foreground text-lg font-medium">
+            No projects found
+          </p>
           <p className="text-gray-400 text-sm mt-1">
             You have no projects yet. Start by adding one!
           </p>

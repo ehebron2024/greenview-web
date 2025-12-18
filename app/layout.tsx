@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-[var(--background)] text-[var(--foreground)]">
+      <body className="bg-card text-foreground">
         <UserProvider>
           <div className="min-h-screen">
             <NavigationBar />
