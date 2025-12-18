@@ -11,7 +11,6 @@ function getFirstNameFromEmail(email: string | null): string {
   const namePart = email.split("@")[0];
   const nameParts = namePart.split(/[._-]/);
 
-  // Capitalize first letter of each word, lowercase the rest
   return nameParts
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
     .join(" ");
@@ -61,7 +60,7 @@ export default function UserPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
-      <div className="w-full max-w-md p-5 bg-card rounded-lg shadow-lg text-center">
+      <div className="w-full max-w-md p-8 bg-card rounded-lg shadow-lg border border-border text-center">
         {/* Logo Section */}
         <img
           src="./print_transparent.svg"
@@ -69,25 +68,24 @@ export default function UserPage() {
           className="w-[150px] mb-5 mx-auto"
         />
 
-        <h2 className="text-2xl font-bold mb-4 text-foreground">
+        <h2 className="text-2xl font-bold mb-6 text-foreground">
           Welcome, {firstName}!
         </h2>
 
-        {/* Projects Button */}
-        <button
-          onClick={handleProjectsClick}
-          className="bg-primary text-primary-foreground px-6 py-2.5 text-base font-semibold border-none rounded-md cursor-pointer transition-colors hover:bg-accent"
-        >
-          View Projects
-        </button>
+        <div className="flex flex-col gap-3">
+          {/* View Projects Button - uses globals.css defaults */}
+          <button onClick={handleProjectsClick} className="w-full">
+            View Projects
+          </button>
 
-        {/* New Project Button */}
-        <button
-          onClick={handleNewProjectClick}
-          className="bg-primary text-primary-foreground px-6 py-2.5 text-base font-semibold border-none rounded-md cursor-pointer transition-colors hover:bg-accent mt-3 ml-3"
-        >
-          Create New Project
-        </button>
+          {/* New Project Button - secondary style */}
+          <button
+            onClick={handleNewProjectClick}
+            className="w-full bg-secondary text-secondary-foreground hover:bg-muted"
+          >
+            Create New Project
+          </button>
+        </div>
       </div>
     </div>
   );

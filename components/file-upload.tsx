@@ -70,7 +70,7 @@ export default function FileUpload({
               </span>
               <button
                 onClick={() => onRemoveFile(index)}
-                className="ml-2 text-muted-foreground hover:text-destructive transition-colors"
+                className="ml-2 text-muted-foreground hover:text-destructive transition-colors bg-transparent p-1"
               >
                 <X className="w-5 h-5" />
               </button>

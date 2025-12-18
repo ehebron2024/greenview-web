@@ -259,7 +259,7 @@ export default function ProjectInfoPage() {
                   });
                   router.push(`/${userId}/newProject?${params.toString()}`);
                 }}
-                className="flex-1 bg-primary text-primary-foreground py-2 rounded-lg font-medium hover:bg-accent transition-colors shadow-sm"
+                className="flex-1 py-2 rounded-lg font-medium"
               >
                 Edit Project
               </button>

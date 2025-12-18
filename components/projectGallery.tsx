@@ -364,7 +364,7 @@ const ProjectGallery: React.FC = () => {
                           );
                         }
                       }}
-                      className="w-full mb-3 px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-blue-700 transition text-sm"
+                      className="w-full mb-3"
                     >
                       + New Room
                     </button>

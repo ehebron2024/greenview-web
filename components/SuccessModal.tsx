@@ -36,12 +36,7 @@ export default function SuccessModal({
           </div>
           <h3 className="text-2xl font-bold text-foreground mb-2">Success!</h3>
           <p className="text-muted-foreground mb-6">{message}</p>
-          <button
-            onClick={onClose}
-            className="bg-primary text-primary-foreground px-6 py-2.5 rounded-md font-medium hover:bg-accent transition-colors"
-          >
-            Close
-          </button>
+          <button onClick={onClose}>Close</button>
         </div>
       </div>
     </div>

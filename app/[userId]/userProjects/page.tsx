@@ -31,23 +31,9 @@ const UserProjects: React.FC<UserProjectsProps> = () => {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-background p-5">
       <ProjectGallery />
-      <button
-        onClick={handleNewProjectClick}
-        style={{
-          backgroundColor: "#013220",
-          color: "#ffffff",
-          padding: "10px 24px",
-          fontSize: "16px",
-          fontWeight: "600",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-          marginTop: "20px",
-          marginLeft: "12px",
-        }}
-      >
+      <button onClick={handleNewProjectClick} className="mt-5 ml-3">
         Create New Project
       </button>
     </div>

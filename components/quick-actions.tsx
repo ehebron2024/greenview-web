@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  FolderOpen,
-  Calendar,
-  FileText,
-  Users,
-  Camera,
-  ClipboardList,
-} from "lucide-react";
+import { FolderOpen, Calendar, FileText } from "lucide-react";
 
 interface QuickAction {
   label: string;
@@ -51,10 +44,10 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
 
   return (
     <div
-      className={`bg-white rounded-xl border border-gray-200 shadow-sm ${className}`}
+      className={`bg-card rounded-xl border border-border shadow-sm ${className}`}
     >
-      <div className="p-6 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+      <div className="p-6 border-b border-border">
+        <h2 className="text-xl font-semibold text-foreground">{title}</h2>
       </div>
       <div className="p-6">
         <div className="space-y-3">
@@ -66,10 +59,10 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
               <button
                 key={index}
                 onClick={action.onClick}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${
+                className={`w-full flex items-center gap-3 ${
                   isPrimary
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "border-2 border-gray-200 text-gray-700 hover:bg-gray-50"
+                    ? ""
+                    : "bg-secondary text-secondary-foreground hover:bg-muted border-2 border-border"
                 }`}
               >
                 <Icon className="w-5 h-5" />

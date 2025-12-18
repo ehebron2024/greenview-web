@@ -67,7 +67,6 @@ export default function Home() {
                 Already have an account?{" "}
                 <button
                   onClick={() => setShowSignUp(false)}
-                  className="text-primary underline cursor-pointer hover:text-accent bg-transparent border-none font-inherit"
                 >
                   Sign In
                 </button>
@@ -80,7 +79,6 @@ export default function Home() {
                 Don't have an account?{" "}
                 <button
                   onClick={() => setShowSignUp(true)}
-                  className="text-primary underline cursor-pointer hover:text-accent bg-transparent border-none font-inherit"
                 >
                   Sign Up
                 </button>
