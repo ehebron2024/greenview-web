@@ -6,15 +6,17 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { Button } from "@/components/ui/button";
+import { Plus, Edit, Trash2 } from "lucide-react";
 
 interface Room {
   id: string;
   name: string;
   description?: string;
   status?: string;
-  dimensions?: string; // e.g., "12x15 ft" or structured; adjust type if needed
-  images?: string[]; // array of image URLs
-  startDate?: any; // Firestore Timestamp or ISO string
+  dimensions?: string;
+  images?: Array<string | { urls: string }>; // Changed from Array<{ urls: string }>
+  startDate?: any;
 }
 
 export default function RoomInfoPage() {
@@ -72,29 +74,41 @@ export default function RoomInfoPage() {
     setRooms((r) => r.filter((x) => x.id !== roomId));
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
+  if (loading)
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground">Loading...</div>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-destructive">{error}</div>
+      </div>
+    );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow p-8">
+        <div className="bg-card rounded-lg shadow-lg border border-border p-8">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">Rooms</h1>
-            <
+            <h1 className="text-3xl font-bold text-foreground">Rooms</h1>
+            <Button
               onClick={() =>
                 router.push(
                   `/${userId}/userProjects/projectInfo/roomInfo/newRoom?projectId=${projectId}`
                 )
               }
-              className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition"
+              variant="forest"
             >
-              + Add Room
-            </>
+              <Plus className="w-5 h-5" />
+              Add Room
+            </Button>
           </div>
 
           {rooms.length === 0 ? (
-            <p className="text-gray-600">No rooms added yet.</p>
+            <p className="text-muted-foreground">No rooms added yet.</p>
           ) : (
             <div className="space-y-3">
               {rooms.map((room) => {
@@ -113,19 +127,19 @@ export default function RoomInfoPage() {
                         `/${userId}/userProjects/projectInfo/roomInfo/${room.id}?projectId=${projectId}`
                       )
                     }
-                    className="flex flex-col gap-3 px-4 py-3 border rounded-lg cursor-pointer hover:shadow-md transition"
+                    className="flex flex-col gap-3 px-4 py-3 border border-border rounded-lg cursor-pointer hover:shadow-md hover:border-accent transition bg-card"
                   >
                     <div className="flex justify-between items-start">
-                      <div>
-                        <p className="text-lg font-semibold text-gray-900">
+                      <div className="flex-1">
+                        <p className="text-lg font-semibold text-foreground">
                           {room.name}
                         </p>
                         {room.description && (
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-muted-foreground">
                             {room.description}
                           </p>
                         )}
-                        <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-700">
+                        <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
                           {room.status && (
                             <span>
                               <span className="font-medium">Status:</span>{" "}
@@ -147,41 +161,50 @@ export default function RoomInfoPage() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <
+                        <Button
                           onClick={(e) => {
                             e.stopPropagation();
                             router.push(
                               `/${userId}/userProjects/projectInfo/roomInfo/${room.id}/editRoom?projectId=${projectId}`
                             );
                           }}
-                          className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+                          variant="forest"
+                          size="sm"
                         >
-                          Edit Room
-                        </>
-                        <
+                          <Edit className="w-4 h-4" />
+                          Edit
+                        </Button>
+                        <Button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDelete(room.id);
                           }}
-                          className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition"
+                          variant="destructive"
+                          size="sm"
                         >
+                          <Trash2 className="w-4 h-4" />
                           Delete
-                        </>
+                        </Button>
                       </div>
                     </div>
 
                     {room.images && room.images.length > 0 && (
                       <div className="mt-2 flex gap-2 flex-wrap">
-                        {room.images.slice(0, 4).map((url, idx) => (
-                          <img
-                            key={idx}
-                            src={url}
-                            alt={`${room.name} image ${idx + 1}`}
-                            className="h-20 w-28 object-cover rounded border"
-                          />
-                        ))}
+                        {room.images.slice(0, 4).map((image, idx) => {
+                          const imageUrl =
+                            typeof image === "string" ? image : image.urls;
+
+                          return (
+                            <img
+                              key={idx}
+                              src={imageUrl}
+                              alt={`${room.name} image ${idx + 1}`}
+                              className="h-20 w-28 object-cover rounded border border-border"
+                            />
+                          );
+                        })}
                         {room.images.length > 4 && (
-                          <span className="text-xs text-gray-600 self-center">
+                          <span className="text-xs text-muted-foreground self-center px-2">
                             +{room.images.length - 4} more
                           </span>
                         )}
