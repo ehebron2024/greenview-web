@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Button } from "./ui/button";
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -36,7 +37,7 @@ export default function SuccessModal({
           </div>
           <h3 className="text-2xl font-bold text-foreground mb-2">Success!</h3>
           <p className="text-muted-foreground mb-6">{message}</p>
-          <button onClick={onClose}>Close</button>
+          <Button onClick={onClose}>Close</Button>
         </div>
       </div>
     </div>

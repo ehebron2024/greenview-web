@@ -7,6 +7,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import ShareProject from "@/components/share-project";
 import { Share2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Room {
   id: string;
@@ -145,13 +146,10 @@ export default function ProjectInfoPage() {
               {project.name}
             </h1>
             {isOwner && (
-              <button
-                onClick={() => setShowShare(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-accent transition-colors shadow-sm"
-              >
+              <Button onClick={() => setShowShare(true)} variant="forest">
                 <Share2 className="w-5 h-5" />
                 Share
-              </button>
+              </Button>
             )}
           </div>
 
@@ -251,7 +249,7 @@ export default function ProjectInfoPage() {
 
           <div className="flex gap-4 pt-8 border-t border-border mt-8">
             {isOwner && (
-              <button
+              <Button
                 onClick={() => {
                   const params = new URLSearchParams({
                     projectId: projectId!,
@@ -259,17 +257,19 @@ export default function ProjectInfoPage() {
                   });
                   router.push(`/${userId}/newProject?${params.toString()}`);
                 }}
-                className="flex-1 py-2 rounded-lg font-medium"
+                variant="forest"
+                className="flex-1"
               >
                 Edit Project
-              </button>
+              </Button>
             )}
-            <button
+            <Button
               onClick={() => router.back()}
-              className="flex-1 bg-secondary text-secondary-foreground py-2 rounded-lg font-medium hover:bg-secondary/80 transition-colors shadow-sm"
+              variant="secondary"
+              className="flex-1"
             >
               Back
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -278,16 +278,16 @@ export default function ProjectInfoPage() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-foreground">Rooms</h2>
             <div className="flex gap-2">
-              <button
+              <Button
                 onClick={() =>
                   router.push(
                     `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
                   )
                 }
-                className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-accent transition-colors shadow-sm"
+                variant="forest"
               >
                 {project.name ? `${project.name} Rooms` : "Project's Rooms"}
-              </button>
+              </Button>
             </div>
           </div>
           <p className="text-muted-foreground">

@@ -7,6 +7,7 @@ import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { Button } from "@/components/ui/button";
 
 interface RoomFormData {
   name: string;
@@ -157,7 +158,6 @@ export default function EditRoomPage() {
           throw new Error(`Failed to upload image ${i + 1}`);
         }
       } else if (formData.imageUrls[i]) {
-        // Keep existing URL if no new file is selected
         uploadedUrls.push(formData.imageUrls[i]);
       }
     }
@@ -181,7 +181,6 @@ export default function EditRoomPage() {
     setSaving(true);
     setUploadingImages(true);
     try {
-      // Upload images if any new files are selected
       let finalImageUrls = formData.imageUrls;
 
       if (imageFiles.some((f) => f !== null)) {
@@ -228,33 +227,55 @@ export default function EditRoomPage() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!room) return <div>No room data</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="bg-destructive/10 border border-destructive text-destructive px-6 py-4 rounded-lg">
+          Error: {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (!room) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground text-lg">No room data</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Edit Room</h1>
+        <div className="bg-card rounded-lg shadow-lg border border-border p-8">
+          <h1 className="text-3xl font-bold text-foreground mb-6">Edit Room</h1>
 
           <form onSubmit={handleSaveRoom} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Room Name *
               </label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleFormChange("name", e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 placeholder="e.g., Kitchen"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Description
               </label>
               <textarea
@@ -262,33 +283,33 @@ export default function EditRoomPage() {
                 onChange={(e) =>
                   handleFormChange("description", e.target.value)
                 }
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 placeholder="e.g., Everything new"
                 rows={3}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Dimensions
               </label>
               <input
                 type="text"
                 value={formData.dimensions}
                 onChange={(e) => handleFormChange("dimensions", e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 placeholder="e.g., 10x12 feet"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Status
               </label>
               <select
                 value={formData.status}
                 onChange={(e) => handleFormChange("status", e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="pending">Pending</option>
                 <option value="in-progress">In Progress</option>
@@ -299,24 +320,27 @@ export default function EditRoomPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Start Date
               </label>
               <input
                 type="date"
                 value={formData.startDate}
                 onChange={(e) => handleFormChange("startDate", e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Images (Upload or enter URLs)
               </label>
               {[0, 1, 2].map((index) => (
-                <div key={index} className="mb-4 p-4 border rounded-lg">
-                  <p className="text-sm font-medium text-gray-600 mb-2">
+                <div
+                  key={index}
+                  className="mb-4 p-4 border border-border rounded-lg bg-muted"
+                >
+                  <p className="text-sm font-medium text-foreground mb-2">
                     Image {index + 1}
                   </p>
 
@@ -331,7 +355,7 @@ export default function EditRoomPage() {
                   )}
 
                   <div className="mb-2">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">
                       Upload new image
                     </label>
                     <input
@@ -343,12 +367,12 @@ export default function EditRoomPage() {
                           e.target.files?.[0] || null
                         )
                       }
-                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">
                       Or enter image URL
                     </label>
                     <input
@@ -357,7 +381,7 @@ export default function EditRoomPage() {
                       onChange={(e) =>
                         handleImageUrlChange(index, e.target.value)
                       }
-                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                       placeholder={`Image URL ${index + 1}`}
                     />
                   </div>
@@ -365,29 +389,31 @@ export default function EditRoomPage() {
               ))}
             </div>
 
-            <div className="flex gap-4 pt-8 border-t">
-              <button
+            <div className="flex gap-4 pt-8 border-t border-border">
+              <Button
                 type="submit"
                 disabled={saving || uploadingImages}
-                className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50"
+                variant="forest"
+                className="flex-1"
               >
                 {saving
                   ? uploadingImages
                     ? "Uploading images..."
                     : "Saving..."
                   : "Update Room"}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() =>
                   router.push(
                     `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
                   )
                 }
-                className="flex-1 bg-gray-300 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-400 transition"
+                variant="secondary"
+                className="flex-1"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </form>
         </div>

@@ -3,6 +3,7 @@
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface FileUploadProps {
   onFilesSelected: (files: File[]) => void;
@@ -68,12 +69,14 @@ export default function FileUpload({
               <span className="text-sm text-foreground truncate flex-1">
                 {file.name}
               </span>
-              <button
+              <Button
                 onClick={() => onRemoveFile(index)}
-                className="ml-2 text-muted-foreground hover:text-destructive transition-colors bg-transparent p-1"
+                variant="ghost"
+                size="icon-sm"
+                className="ml-2 hover:text-destructive"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
           ))}
         </div>

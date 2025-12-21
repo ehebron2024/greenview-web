@@ -81,7 +81,7 @@ export default function RoomInfoPage() {
         <div className="bg-white rounded-lg shadow p-8">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-gray-900">Rooms</h1>
-            <button
+            <
               onClick={() =>
                 router.push(
                   `/${userId}/userProjects/projectInfo/roomInfo/newRoom?projectId=${projectId}`
@@ -90,7 +90,7 @@ export default function RoomInfoPage() {
               className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition"
             >
               + Add Room
-            </button>
+            </>
           </div>
 
           {rooms.length === 0 ? (
@@ -147,7 +147,7 @@ export default function RoomInfoPage() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <button
+                        <
                           onClick={(e) => {
                             e.stopPropagation();
                             router.push(
@@ -157,8 +157,8 @@ export default function RoomInfoPage() {
                           className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
                         >
                           Edit Room
-                        </button>
-                        <button
+                        </>
+                        <
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDelete(room.id);
@@ -166,7 +166,7 @@ export default function RoomInfoPage() {
                           className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition"
                         >
                           Delete
-                        </button>
+                        </>
                       </div>
                     </div>
 

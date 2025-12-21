@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 import { app } from "@/lib/firebase";
 import ProjectGallery from "@/components/projectGallery";
+import { Button } from "@/components/ui/button";
 
 interface UserProjectsProps {}
 
@@ -33,9 +34,14 @@ const UserProjects: React.FC<UserProjectsProps> = () => {
   return (
     <div className="min-h-screen bg-background p-5">
       <ProjectGallery />
-      <button onClick={handleNewProjectClick} className="mt-5 ml-3">
+      <Button
+        onClick={handleNewProjectClick}
+        variant="forest"
+        size="lg"
+        className="mt-5 ml-3"
+      >
         Create New Project
-      </button>
+      </Button>
     </div>
   );
 };

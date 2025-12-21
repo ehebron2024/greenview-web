@@ -13,6 +13,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import { Button } from "@/components/ui/button";
 
 interface ShareProjectProps {
   projectId: string;
@@ -192,12 +193,9 @@ const ShareProject: React.FC<ShareProjectProps> = ({
           <p className="text-destructive font-medium mb-4">
             Unauthorized access
           </p>
-          <button
-            onClick={onClose}
-            className="w-full bg-secondary text-secondary-foreground hover:bg-muted"
-          >
+          <Button onClick={onClose} variant="secondary" className="w-full">
             Close
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -220,12 +218,9 @@ const ShareProject: React.FC<ShareProjectProps> = ({
             </div>
           </div>
           {onClose && (
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-muted rounded-lg transition-colors bg-transparent"
-            >
-              <X className="w-5 h-5 text-muted-foreground" />
-            </button>
+            <Button onClick={onClose} variant="ghost" size="icon-sm">
+              <X className="w-5 h-5" />
+            </Button>
           )}
         </div>
 
@@ -277,7 +272,7 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                 </div>
                 <button
                   onClick={handleTogglePublic}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-transparent p-0 ${
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     isPublic ? "bg-primary" : "bg-border"
                   }`}
                 >
@@ -301,7 +296,7 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                 </div>
                 <button
                   onClick={handleToggleAllowCopy}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-transparent p-0 ${
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     allowCopy ? "bg-primary" : "bg-border"
                   }`}
                 >
@@ -325,10 +320,7 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                     value={shareLink}
                     className="flex-1 px-4 py-2 border border-input rounded-lg bg-background text-foreground text-sm"
                   />
-                  <button
-                    onClick={handleCopyLink}
-                    className="flex items-center gap-2"
-                  >
+                  <Button onClick={handleCopyLink} variant="forest">
                     {copied ? (
                       <>
                         <Check className="w-4 h-4" />
@@ -340,7 +332,7 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                         <span>Copy</span>
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -350,26 +342,24 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                   Permission Level
                 </label>
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     onClick={() => setSelectedPermission("view")}
-                    className={`flex-1 ${
-                      selectedPermission === "view"
-                        ? "bg-primary/10 text-primary border-2 border-primary"
-                        : "bg-muted text-foreground border-2 border-transparent hover:bg-muted/80"
-                    }`}
+                    variant={
+                      selectedPermission === "view" ? "forest" : "outline"
+                    }
+                    className="flex-1"
                   >
                     View Only
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => setSelectedPermission("edit")}
-                    className={`flex-1 ${
-                      selectedPermission === "edit"
-                        ? "bg-primary/10 text-primary border-2 border-primary"
-                        : "bg-muted text-foreground border-2 border-transparent hover:bg-muted/80"
-                    }`}
+                    variant={
+                      selectedPermission === "edit" ? "forest" : "outline"
+                    }
+                    className="flex-1"
                   >
                     Can Edit
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -409,26 +399,24 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                   Permission Level
                 </label>
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     onClick={() => setSelectedPermission("view")}
-                    className={`flex-1 ${
-                      selectedPermission === "view"
-                        ? "bg-primary/10 text-primary border-2 border-primary"
-                        : "bg-muted text-foreground border-2 border-transparent hover:bg-muted/80"
-                    }`}
+                    variant={
+                      selectedPermission === "view" ? "forest" : "outline"
+                    }
+                    className="flex-1"
                   >
                     View Only
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => setSelectedPermission("edit")}
-                    className={`flex-1 ${
-                      selectedPermission === "edit"
-                        ? "bg-primary/10 text-primary border-2 border-primary"
-                        : "bg-muted text-foreground border-2 border-transparent hover:bg-muted/80"
-                    }`}
+                    variant={
+                      selectedPermission === "edit" ? "forest" : "outline"
+                    }
+                    className="flex-1"
                   >
                     Can Edit
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -448,16 +436,11 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                 </label>
               </div>
 
-              <button
+              <Button
                 onClick={handleEmailShare}
                 disabled={!email || emailSending}
-                className={`w-full flex items-center justify-center gap-2 ${
-                  !email || emailSending
-                    ? "bg-muted text-muted-foreground cursor-not-allowed"
-                    : emailSent
-                    ? ""
-                    : ""
-                }`}
+                variant="forest"
+                className="w-full"
               >
                 {emailSending ? (
                   <>
@@ -475,7 +458,7 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                     <span>Send Invitation</span>
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           )}
         </div>

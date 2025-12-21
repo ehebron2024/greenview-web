@@ -210,15 +210,15 @@ export default function NewRoomPage() {
             </div>
 
             <div className="flex gap-4 pt-8 border-t">
-              <button
+              <
                 type="submit"
                 disabled={loading}
                 className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 transition disabled:opacity-50"
               >
                 {loading ? "Creating..." : "Create Room"}
-              </button>
-              <button
-                type="button"
+              </>
+              <
+                type=""
                 onClick={() =>
                   router.push(
                     `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
@@ -227,7 +227,7 @@ export default function NewRoomPage() {
                 className="flex-1 bg-gray-300 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-400 transition"
               >
                 Cancel
-              </button>
+              </>
             </div>
           </form>
         </div>

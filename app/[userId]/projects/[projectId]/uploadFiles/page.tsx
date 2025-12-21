@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function UploadFilesPage() {
   const params = useParams();
@@ -61,19 +62,22 @@ export default function UploadFilesPage() {
           )}
 
           <div className="flex gap-4">
-            <button
+            <Button
               onClick={handleUpload}
               disabled={uploading}
-              className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
+              variant="forest"
+              className="flex-1"
             >
               {uploading ? "Uploading..." : "Upload Files"}
-            </button>
-            <button
+            </Button>
+
+            <Button
               onClick={() => router.back()}
-              className="flex-1 bg-gray-300 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-400"
+              variant="secondary"
+              className="flex-1"
             >
               Back
-            </button>
+            </Button>
           </div>
         </div>
       </div>

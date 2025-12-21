@@ -6,6 +6,7 @@ import { auth, db } from "@/lib/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import SuccessModal from "@/components/SuccessModal";
+import { Button } from "@/components/ui/button";
 
 interface UserFormData {
   email: string;
@@ -542,10 +543,11 @@ export default function NewProjectPage() {
 
             {/* Form Actions */}
             <div className="flex gap-4 pt-6">
-              <button
+              <Button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                variant="forest"
+                className="flex-1"
               >
                 {isLoading
                   ? isEditMode
@@ -554,26 +556,29 @@ export default function NewProjectPage() {
                   : isEditMode
                   ? "Update Project"
                   : "Create Project"}
-              </button>
-              <button
+              </Button>
+
+              <Button
                 type="button"
                 onClick={() => router.back()}
-                className="flex-1 bg-gray-300 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-400 transition"
+                variant="secondary"
+                className="flex-1"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
 
             {/* Upload Files Button - Only show after project is created/edited */}
             {isEditMode && (
               <div className="pt-4 border-t">
-                <button
+                <Button
                   type="button"
                   onClick={handleUploadFiles}
-                  className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+                  variant="forest"
+                  className="w-full"
                 >
                   Upload Project Files
-                </button>
+                </Button>
               </div>
             )}
           </form>

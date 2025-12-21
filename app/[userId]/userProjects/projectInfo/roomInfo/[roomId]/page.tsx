@@ -13,6 +13,8 @@ import {
 } from "firebase/firestore";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Task {
   id: string;
@@ -165,9 +167,31 @@ export default function RoomDetailPage() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!room) return <div>No room data</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="bg-destructive/10 border border-destructive text-destructive px-6 py-4 rounded-lg">
+          Error: {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (!room) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground text-lg">No room data</div>
+      </div>
+    );
+  }
 
   const formatDate = (date: any) => {
     if (!date) return "N/A";
@@ -187,37 +211,47 @@ export default function RoomDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow p-8 mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">{room.name}</h1>
+        <div className="bg-card rounded-lg shadow-lg border border-border p-8 mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-6">
+            {room.name}
+          </h1>
 
           <div className="grid grid-cols-2 gap-4 mb-8">
             {room.status && (
               <div>
-                <p className="text-sm font-medium text-gray-600">Status</p>
-                <p className="text-lg text-gray-900">{room.status}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Status
+                </p>
+                <p className="text-lg text-foreground">{room.status}</p>
               </div>
             )}
 
             {room.dimensions && (
               <div>
-                <p className="text-sm font-medium text-gray-600">Dimensions</p>
-                <p className="text-lg text-gray-900">{room.dimensions}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Dimensions
+                </p>
+                <p className="text-lg text-foreground">{room.dimensions}</p>
               </div>
             )}
 
             {room.description && (
               <div className="col-span-2">
-                <p className="text-sm font-medium text-gray-600">Description</p>
-                <p className="text-lg text-gray-900">{room.description}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Description
+                </p>
+                <p className="text-lg text-foreground">{room.description}</p>
               </div>
             )}
 
             {room.startDate && (
               <div>
-                <p className="text-sm font-medium text-gray-600">Start Date</p>
-                <p className="text-lg text-gray-900">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Start Date
+                </p>
+                <p className="text-lg text-foreground">
                   {formatDate(room.startDate)}
                 </p>
               </div>
@@ -226,31 +260,31 @@ export default function RoomDetailPage() {
 
           {images.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Images</h2>
-              <div className="relative bg-gray-200 rounded-lg overflow-hidden">
+              <h2 className="text-xl font-bold text-foreground mb-4">Images</h2>
+              <div className="relative bg-muted rounded-lg overflow-hidden">
                 <img
                   src={currentImage.urls}
                   alt={`${room.name} - Image ${currentImageIndex + 1}`}
-                  style={{
-                    width: "100%",
-                    height: "400px",
-                    objectFit: "cover",
-                  }}
+                  className="w-full h-[400px] object-cover"
                 />
                 {images.length > 1 && (
                   <>
-                    <button
+                    <Button
                       onClick={prevImage}
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-75 hover:bg-opacity-100 rounded-full p-2 transition"
+                      variant="secondary"
+                      size="icon"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-card/90 hover:bg-card"
                     >
-                      ←
-                    </button>
-                    <button
+                      <ChevronLeft className="w-5 h-5" />
+                    </Button>
+                    <Button
                       onClick={nextImage}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-75 hover:bg-opacity-100 rounded-full p-2 transition"
+                      variant="secondary"
+                      size="icon"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-card/90 hover:bg-card"
                     >
-                      →
-                    </button>
+                      <ChevronRight className="w-5 h-5" />
+                    </Button>
                   </>
                 )}
               </div>
@@ -264,8 +298,8 @@ export default function RoomDetailPage() {
                       onClick={() => setCurrentImageIndex(index)}
                       className={`h-20 w-20 object-cover rounded cursor-pointer transition ${
                         index === currentImageIndex
-                          ? "ring-2 ring-blue-500"
-                          : ""
+                          ? "ring-2 ring-primary"
+                          : "hover:ring-2 hover:ring-muted-foreground"
                       }`}
                     />
                   ))}
@@ -274,46 +308,48 @@ export default function RoomDetailPage() {
             </div>
           )}
 
-          <div className="border-t pt-8">
+          <div className="border-t border-border pt-8">
             <div className="flex gap-4">
-              <button
+              <Button
                 onClick={() =>
                   router.push(
                     `/${userId}/userProjects/projectInfo/roomInfo/${roomId}/editRoom?projectId=${projectId}`
                   )
                 }
-                className="bg-blue-600 text-white py-2 px-6 rounded-lg font-medium hover:bg-blue-700 transition"
+                variant="forest"
+                className="flex-1"
               >
                 Edit Room
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => router.back()}
-                className="bg-gray-300 text-gray-800 py-2 px-6 rounded-lg font-medium hover:bg-gray-400 transition"
+                variant="secondary"
+                className="flex-1"
               >
                 Back
-              </button>
+              </Button>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-8">
+        <div className="bg-card rounded-lg shadow-lg border border-border p-8">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Tasks</h2>
-            <button
+            <h2 className="text-2xl font-bold text-foreground">Tasks</h2>
+            <Button
               onClick={() => setShowAddTask(!showAddTask)}
-              className="bg-green-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-700 transition"
+              variant={showAddTask ? "secondary" : "forest"}
             >
               {showAddTask ? "Cancel" : "+ Add Task"}
-            </button>
+            </Button>
           </div>
 
           {showAddTask && (
             <form
               onSubmit={handleAddTask}
-              className="mb-6 p-4 border rounded-lg bg-gray-50"
+              className="mb-6 p-4 border border-border rounded-lg bg-muted"
             >
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Task Name
                 </label>
                 <input
@@ -321,56 +357,52 @@ export default function RoomDetailPage() {
                   value={newTaskName}
                   onChange={(e) => setNewTaskName(e.target.value)}
                   placeholder="Enter task name"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   required
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Status
                 </label>
                 <select
                   value={newTaskStatus}
                   onChange={(e) => setNewTaskStatus(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="pending">Pending</option>
                   <option value="in-progress">In Progress</option>
                   <option value="completed">Completed</option>
                 </select>
               </div>
-              <button
-                type="submit"
-                disabled={addingTask}
-                className="bg-blue-600 text-white py-2 px-6 rounded-lg font-medium hover:bg-blue-700 transition disabled:bg-gray-400"
-              >
+              <Button type="submit" disabled={addingTask} variant="forest">
                 {addingTask ? "Adding..." : "Add Task"}
-              </button>
+              </Button>
             </form>
           )}
 
           {tasks.length === 0 ? (
-            <p className="text-gray-600">No tasks added yet.</p>
+            <p className="text-muted-foreground">No tasks added yet.</p>
           ) : (
             <div className="space-y-4">
               {tasks.map((task) => (
                 <div
                   key={task.id}
-                  className="border rounded-lg p-4 hover:shadow transition"
+                  className="border border-border rounded-lg p-4 hover:shadow-md transition bg-card"
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">
+                      <h3 className="text-lg font-bold text-foreground">
                         {task.name}
                       </h3>
                       {task.createdAt && (
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                           Created: {formatDate(task.createdAt)}
                         </p>
                       )}
                     </div>
                     {task.status && (
-                      <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                      <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary border border-primary/20">
                         {task.status}
                       </span>
                     )}

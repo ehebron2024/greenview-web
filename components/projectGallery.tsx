@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
@@ -18,7 +20,9 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
+  Plus,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Project extends DocumentData {
   id: string;
@@ -47,7 +51,6 @@ function getCapitalizedNameFromEmail(email: string | null): string {
   const namePart = email.split("@")[0];
   const nameParts = namePart.split(/[._-]/);
 
-  // Capitalize first letter of each word, lowercase the rest
   return nameParts
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
     .join(" ");
@@ -154,7 +157,6 @@ const ProjectGallery: React.FC = () => {
 
     setExpandedProject(projectId);
 
-    // Fetch rooms if not already loaded
     if (!projectRooms[projectId] && currentUser) {
       setLoadingRooms({ ...loadingRooms, [projectId]: true });
       try {
@@ -243,8 +245,8 @@ const ProjectGallery: React.FC = () => {
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-700">{error}</p>
+        <div className="mb-6 p-4 bg-destructive/10 border border-destructive rounded-lg">
+          <p className="text-destructive">{error}</p>
         </div>
       )}
 
@@ -260,7 +262,7 @@ const ProjectGallery: React.FC = () => {
             return (
               <div
                 key={project.id}
-                className="group bg-card rounded-xl overflow-hidden border border-border hover:border-gray-300 shadow-sm hover:shadow-lg transition-all duration-300"
+                className="group bg-card rounded-xl overflow-hidden border border-border hover:border-accent shadow-sm hover:shadow-lg transition-all duration-300"
               >
                 <div
                   onClick={() => handleProjectClick(project.id)}
@@ -287,7 +289,7 @@ const ProjectGallery: React.FC = () => {
                     {/* Status Badge */}
                     {project.status && (
                       <div className="absolute top-3 right-3">
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold border bg-muted text-gray-700 border-gray-200 backdrop-blur-sm">
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold border bg-muted text-foreground border-border backdrop-blur-sm">
                           {project.status.replace("-", " ")}
                         </span>
                       </div>
@@ -296,7 +298,7 @@ const ProjectGallery: React.FC = () => {
 
                   {/* Project Info */}
                   <div className="p-5">
-                    <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
                       {project.name}
                     </h3>
 
@@ -333,9 +335,10 @@ const ProjectGallery: React.FC = () => {
                 </div>
 
                 {/* Rooms Toggle Button */}
-                <button
+                <Button
                   onClick={(e) => toggleRooms(project.id, e)}
-                  className="w-full px-5 py-3 bg-muted hover:bg-gray-100 transition-colors flex items-center justify-between text-sm font-medium text-gray-700 border-t border-gray-200"
+                  variant="ghost"
+                  className="w-full rounded-none border-t border-border justify-between"
                 >
                   <span>
                     View{" "}
@@ -349,13 +352,13 @@ const ProjectGallery: React.FC = () => {
                   ) : (
                     <ChevronDown className="w-4 h-4" />
                   )}
-                </button>
+                </Button>
 
                 {/* Rooms Section */}
                 {isExpanded && (
-                  <div className="border-t border-gray-200 bg-muted p-4">
+                  <div className="border-t border-border bg-muted p-4">
                     {/* New Room Button */}
-                    <button
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         if (currentUser) {
@@ -364,13 +367,16 @@ const ProjectGallery: React.FC = () => {
                           );
                         }
                       }}
+                      variant="forest"
+                      size="sm"
                       className="w-full mb-3"
                     >
-                      + New Room
-                    </button>
+                      <Plus className="w-4 h-4" />
+                      New Room
+                    </Button>
 
                     {isLoadingRooms ? (
-                      <div className="text-center py-4 text-gray-500 text-sm">
+                      <div className="text-center py-4 text-muted-foreground text-sm">
                         Loading rooms...
                       </div>
                     ) : rooms.length > 0 ? (
@@ -381,7 +387,7 @@ const ProjectGallery: React.FC = () => {
                             onClick={(e) =>
                               navigateToRoom(project.id, room.id, e)
                             }
-                            className="bg-card p-3 rounded-lg border border-border hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
+                            className="bg-card p-3 rounded-lg border border-border hover:border-primary hover:shadow-sm transition-all cursor-pointer"
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex-1">
@@ -389,23 +395,23 @@ const ProjectGallery: React.FC = () => {
                                   {room.name}
                                 </p>
                                 {room.description && (
-                                  <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                                  <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
                                     {room.description}
                                   </p>
                                 )}
                               </div>
                               {room.status && (
-                                <span className="ml-2 px-2 py-1 rounded text-xs font-medium bg-muted text-gray-600">
+                                <span className="ml-2 px-2 py-1 rounded text-xs font-medium bg-muted text-foreground">
                                   {room.status}
                                 </span>
                               )}
-                              <ChevronRight className="w-4 h-4 text-gray-400 ml-2 flex-shrink-0" />
+                              <ChevronRight className="w-4 h-4 text-muted-foreground ml-2 flex-shrink-0" />
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-4 text-gray-500 text-sm">
+                      <div className="text-center py-4 text-muted-foreground text-sm">
                         No rooms yet
                       </div>
                     )}
@@ -417,11 +423,11 @@ const ProjectGallery: React.FC = () => {
         </div>
       ) : (
         <div className="text-center py-16 bg-card rounded-xl border border-border">
-          <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <FolderOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground text-lg font-medium">
             No projects found
           </p>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-muted-foreground text-sm mt-1">
             You have no projects yet. Start by adding one!
           </p>
         </div>
