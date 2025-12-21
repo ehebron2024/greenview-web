@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db, app } from "@/lib/firebase";
+import { Button } from "@/components/ui/button";
+
+console.log("Button component imported:", Button);
 
 function getFirstNameFromEmail(email: string | null): string {
   if (!email) return "User";
@@ -61,7 +64,6 @@ export default function UserPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
       <div className="w-full max-w-md p-8 bg-card rounded-lg shadow-lg border border-border text-center">
-        {/* Logo Section */}
         <img
           src="./print_transparent.svg"
           alt="GreenView Logo"
@@ -73,18 +75,23 @@ export default function UserPage() {
         </h2>
 
         <div className="flex flex-col gap-3">
-          {/* View Projects Button - uses globals.css defaults */}
-          <button onClick={handleProjectsClick} className="w-full">
+          <Button
+            onClick={handleProjectsClick}
+            variant="forest"
+            size="lg"
+            className="w-full"
+          >
             View Projects
-          </button>
+          </Button>
 
-          {/* New Project Button - secondary style */}
-          <button
+          <Button
             onClick={handleNewProjectClick}
-            className="w-full bg-secondary text-secondary-foreground hover:bg-muted"
+            variant="secondary"
+            size="lg"
+            className="w-full"
           >
             Create New Project
-          </button>
+          </Button>
         </div>
       </div>
     </div>

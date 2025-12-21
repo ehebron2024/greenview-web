@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import { Button } from "@/components/ui/button";
 
 interface SignUpFormProps {
   onSignUpSuccess: (userId: string) => void;
@@ -107,13 +108,9 @@ export default function SignUpForm({ onSignUpSuccess }: SignUpFormProps) {
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-primary text-primary-foreground py-2.5 rounded-md font-semibold hover:bg-accent transition-colors disabled:opacity-50"
-        >
+        <Button type="submit" disabled={loading} variant="forest" size="lg">
           {loading ? "Creating account..." : "Sign Up"}
-        </button>
+        </Button>
       </form>
     </div>
   );

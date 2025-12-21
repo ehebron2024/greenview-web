@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import SignInForm from "@/components/authentication/signInForm";
 import SignUpForm from "@/components/authentication/signUpForm";
 import { getAuth } from "firebase/auth";
-import { db } from "@/lib/firebase";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -50,14 +50,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-5">
-      {/* Logo Section */}
       <img
         src="/print_transparent.svg"
         alt="GreenView Logo"
         className="w-[150px] mb-5"
       />
 
-      {/* Conditional Rendering for Forms */}
       {!isLoggedIn ? (
         <div className="w-full max-w-md">
           {showSignUp ? (
@@ -65,11 +63,12 @@ export default function Home() {
               <SignUpForm onSignUpSuccess={handleSignUpSuccess} />
               <p className="mt-5 text-center text-foreground">
                 Already have an account?{" "}
-                <button
+                <Button
                   onClick={() => setShowSignUp(false)}
+                  className="p-0 h-auto"
                 >
                   Sign In
-                </button>
+                </Button>
               </p>
             </>
           ) : (
@@ -77,22 +76,20 @@ export default function Home() {
               <SignInForm onSignInSuccess={handleSignInSuccess} />
               <p className="mt-5 text-center text-foreground">
                 Don't have an account?{" "}
-                <button
+                <Button
                   onClick={() => setShowSignUp(true)}
+                  className="p-0 h-auto"
                 >
                   Sign Up
-                </button>
+                </Button>
               </p>
             </>
           )}
         </div>
       ) : (
-        <button
-          onClick={handleViewProjects}
-          className="px-5 py-2.5 bg-primary text-primary-foreground border-none rounded cursor-pointer text-base font-medium transition-colors hover:bg-accent"
-        >
+        <Button onClick={handleViewProjects} variant="forest" size="lg">
           View My Projects
-        </button>
+        </Button>
       )}
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
+import { Button } from "@/components/ui/button";
 
 export default function NavigationBar() {
   const router = useRouter();
@@ -15,17 +16,16 @@ export default function NavigationBar() {
       style={{ background: "rgba(15, 46, 41, .94)" }}
     >
       <div className="flex items-center justify-between max-w-7xl mx-auto">
-        {/* Home Button */}
-        <button
+        <Button
           onClick={() =>
             user ? router.push(`/${user.uid}`) : router.push("/")
           }
-          className="px-4 py-2 text-sm font-medium rounded-md transition-all text-white hover:bg-white/10"
+          variant="forest-inverted"
+          size="sm"
         >
           Home
-        </button>
+        </Button>
 
-        {/* Logo and Title - Center */}
         <div className="flex flex-col items-center gap-1 absolute left-1/2 transform -translate-x-1/2">
           <img
             src="/images/fulllogo_transparent_1.png"
@@ -34,15 +34,15 @@ export default function NavigationBar() {
           />
         </div>
 
-        {/* My Projects Button */}
-        <button
+        <Button
           onClick={() =>
             user ? router.push(`/${user.uid}/userProjects`) : router.push("/")
           }
-          className="px-4 py-2 text-sm font-medium rounded-md transition-all text-white hover:bg-white/10"
+          variant="forest-inverted"
+          size="sm"
         >
           My Projects
-        </button>
+        </Button>
       </div>
     </nav>
   );

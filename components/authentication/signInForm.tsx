@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { Button } from "@/components/ui/button";
 
 interface SignInFormProps {
   onSignInSuccess: (userId: string) => void;
@@ -75,13 +76,9 @@ export default function SignInForm({ onSignInSuccess }: SignInFormProps) {
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-primary text-primary-foreground py-2.5 rounded-md font-semibold hover:bg-accent transition-colors disabled:opacity-50"
-        >
+        <Button type="submit" disabled={loading} variant="forest" size="lg">
           {loading ? "Signing in..." : "Sign In"}
-        </button>
+        </Button>
       </form>
     </div>
   );
