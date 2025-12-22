@@ -342,7 +342,7 @@ const ProjectGallery: React.FC = () => {
                       placeholder={
                         rooms.length > 0 ? "Select a room..." : "No rooms yet"
                       }
-                      className="w-full mb-2"
+                      className="w-full mb-3"
                     />
                   )}
 
@@ -356,8 +356,8 @@ const ProjectGallery: React.FC = () => {
                         );
                       }
                     }}
-                    variant="outline"
-                    size="sm"
+                    variant="forest"
+                    size="lg"
                     className="w-full"
                   >
                     + Add New Room

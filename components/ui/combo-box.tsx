@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
+  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -34,6 +35,7 @@ interface ComboboxProps {
 export function Combobox({
   items,
   placeholder = "Select item...",
+  emptyText = "No items found.",
   onSelect,
   className,
 }: ComboboxProps) {
@@ -47,7 +49,7 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between bg-background", className)}
+          className={cn("w-full justify-between", className)}
         >
           {value
             ? items.find((item) => item.value === value)?.label
@@ -55,14 +57,15 @@ export function Combobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0 bg-background border border-border">
-        <Command className="bg-background">
+      <PopoverContent className="w-full p-0">
+        <Command>
           <CommandInput
             placeholder={`Search ${placeholder.toLowerCase()}...`}
-            className="h-9 bg-background"
+            className="h-9"
           />
-          <CommandList className="bg-background">
-            <CommandGroup className="bg-background">
+          <CommandList>
+            <CommandEmpty>{emptyText}</CommandEmpty>
+            <CommandGroup>
               {items.map((item) => (
                 <CommandItem
                   key={item.value}
@@ -74,7 +77,6 @@ export function Combobox({
                       onSelect(item);
                     }
                   }}
-                  className="bg-background hover:bg-accent hover:text-accent-foreground"
                 >
                   {item.label}
                   <Check
