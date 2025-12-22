@@ -11,10 +11,7 @@ export default function NavigationBar() {
   if (loading) return null;
 
   return (
-    <nav
-      className="sticky top-0 z-50 py-10 px-4 border-b border-[var(--border)] shadow-sm"
-      style={{ background: "rgba(15, 46, 41, .94)" }}
-    >
+    <nav className="sticky top-0 z-50 py-4 px-4 border-b border-border bg-background/90 backdrop-blur">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
         <Button
           onClick={() =>
@@ -26,11 +23,11 @@ export default function NavigationBar() {
           Home
         </Button>
 
-        <div className="flex flex-col items-center gap-1 absolute left-1/2 transform -translate-x-1/2">
+        <div className="flex flex-col items-center gap-1 absolute left-1/2 -translate-x-1/2">
           <img
             src="/images/fulllogo_transparent_1.png"
             alt="GreenView Logo"
-            className="w-40 h-40"
+            className="w-32 h-32"
           />
         </div>
 
