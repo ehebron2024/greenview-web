@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import { User } from "firebase/auth";
 import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combo-box";
 
 interface Project extends DocumentData {
   id: string;
@@ -51,15 +52,13 @@ const ProjectGallery: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userName, setUserName] = useState<string>("");
   const [projects, setProjects] = useState<Project[]>([]);
+  const [roomsByProject, setRoomsByProject] = useState<Record<string, Room[]>>(
+    {}
+  );
+  const [loadingRooms, setLoadingRooms] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
-  const [projectRooms, setProjectRooms] = useState<{ [key: string]: Room[] }>(
-    {}
-  );
-  const [loadingRooms, setLoadingRooms] = useState<{ [key: string]: boolean }>(
-    {}
-  );
 
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
@@ -137,40 +136,41 @@ const ProjectGallery: React.FC = () => {
     }
   };
 
-  const toggleRooms = async (projectId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const fetchRoomsForProject = async (projectId: string) => {
+    if (!currentUser) return;
 
-    if (expandedProject === projectId) {
-      setExpandedProject(null);
-      return;
-    }
+    setLoadingRooms((prev) => ({ ...prev, [projectId]: true }));
 
-    setExpandedProject(projectId);
+    try {
+      const roomsRef = collection(
+        db,
+        "users",
+        currentUser.uid,
+        "projects",
+        projectId,
+        "rooms"
+      );
+      const roomsSnapshot = await getDocs(roomsRef);
+      const roomsData = roomsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Room[];
 
-    if (!projectRooms[projectId] && currentUser) {
-      setLoadingRooms({ ...loadingRooms, [projectId]: true });
-      try {
-        const roomsRef = collection(
-          db,
-          "users",
-          currentUser.uid,
-          "projects",
-          projectId,
-          "rooms"
-        );
-        const roomsSnap = await getDocs(roomsRef);
-        const rooms: Room[] = [];
-        roomsSnap.forEach((doc) => {
-          rooms.push({ id: doc.id, ...doc.data() } as Room);
-        });
-        setProjectRooms({ ...projectRooms, [projectId]: rooms });
-      } catch (err) {
-        console.error("Error fetching rooms:", err);
-      } finally {
-        setLoadingRooms({ ...loadingRooms, [projectId]: false });
-      }
+      setRoomsByProject((prev) => ({ ...prev, [projectId]: roomsData }));
+    } catch (error) {
+      console.error("Error fetching rooms:", error);
+    } finally {
+      setLoadingRooms((prev) => ({ ...prev, [projectId]: false }));
     }
   };
+
+  useEffect(() => {
+    if (projects.length > 0) {
+      projects.forEach((project) => {
+        fetchRoomsForProject(project.id);
+      });
+    }
+  }, [projects]);
 
   const navigateToRoom = (
     projectId: string,
@@ -245,9 +245,8 @@ const ProjectGallery: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => {
             const startDate = formatDate(project.startDate);
-            const isExpanded = expandedProject === project.id;
-            const rooms = projectRooms[project.id] || [];
-            const isLoadingRooms = loadingRooms[project.id];
+            const rooms = roomsByProject[project.id] || [];
+            const isLoadingRooms = loadingRooms[project.id] || false;
 
             return (
               <div
@@ -321,80 +320,50 @@ const ProjectGallery: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Rooms Toggle Button */}
-                <Button
-                  onClick={(e) => toggleRooms(project.id, e)}
-                  variant="ghost"
-                  className="w-full rounded-none border-t border-border justify-between"
-                >
-                  View{" "}
-                  {project.roomCount !== undefined
-                    ? `${project.roomCount} `
-                    : ""}
-                  {project.roomCount === 1 ? "Room" : "Rooms"}
-                </Button>
-
-                {/* Rooms Section */}
-                {isExpanded && (
-                  <div className="border-t border-border bg-muted p-4">
-                    {/* New Room Button */}
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
+                {/* ComboBox Component */}
+                <div className="border-t border-border bg-muted/50 p-4">
+                  {isLoadingRooms ? (
+                    <div className="text-center py-2 text-sm text-muted-foreground">
+                      Loading rooms...
+                    </div>
+                  ) : (
+                    <Combobox
+                      items={rooms.map((room) => ({
+                        label: room.name,
+                        value: room.id,
+                      }))}
+                      onSelect={(selected) => {
                         if (currentUser) {
                           router.push(
-                            `/${currentUser.uid}/userProjects/projectInfo/roomInfo/newRoom?projectId=${project.id}`
+                            `/${currentUser.uid}/userProjects/projectInfo/roomInfo/${selected.value}?projectId=${project.id}`
                           );
                         }
                       }}
-                      variant="forest"
-                      size="sm"
-                      className="w-full mb-3"
-                    >
-                      New Room
-                    </Button>
+                      placeholder={
+                        rooms.length > 0 ? "Select a room..." : "No rooms yet"
+                      }
+                      emptyText="No rooms available"
+                      className="w-full mb-2"
+                    />
+                  )}
 
-                    {isLoadingRooms ? (
-                      <div className="text-center py-4 text-muted-foreground text-sm">
-                        Loading rooms...
-                      </div>
-                    ) : rooms.length > 0 ? (
-                      <div className="space-y-2 max-h-60 overflow-y-auto">
-                        {rooms.map((room) => (
-                          <div
-                            key={room.id}
-                            onClick={(e) =>
-                              navigateToRoom(project.id, room.id, e)
-                            }
-                            className="bg-card p-3 rounded-lg border border-border hover:border-primary hover:shadow-sm transition-all cursor-pointer"
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                                <p className="font-medium text-foreground text-sm">
-                                  {room.name}
-                                </p>
-                                {room.description && (
-                                  <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
-                                    {room.description}
-                                  </p>
-                                )}
-                              </div>
-                              {room.status && (
-                                <span className="ml-2 px-2 py-1 rounded text-xs font-medium bg-muted text-foreground">
-                                  {room.status}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-4 text-muted-foreground text-sm">
-                        No rooms yet
-                      </div>
-                    )}
-                  </div>
-                )}
+                  {/* New Room Button */}
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (currentUser) {
+                        router.push(
+                          `/${currentUser.uid}/userProjects/projectInfo/roomInfo/newRoom?projectId=${project.id}`
+                        );
+                      }
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                  >
+                    + Add New Room
+                  </Button>
+                </div>
               </div>
             );
           })}

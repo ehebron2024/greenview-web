@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Share2, Link2, Mail, Copy, Check, X } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
 import {
   doc,
@@ -207,9 +206,7 @@ const ShareProject: React.FC<ShareProjectProps> = ({
         {/* Header */}
         <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-              <Share2 className="w-5 h-5 text-primary" />
-            </div>
+            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center"></div>
             <div>
               <h2 className="text-xl font-bold text-foreground">
                 Share Project
@@ -218,9 +215,7 @@ const ShareProject: React.FC<ShareProjectProps> = ({
             </div>
           </div>
           {onClose && (
-            <Button onClick={onClose} variant="ghost" size="icon-sm">
-              <X className="w-5 h-5" />
-            </Button>
+            <Button onClick={onClose} variant="ghost" size="icon-sm"></Button>
           )}
         </div>
 
@@ -241,7 +236,6 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                   : "text-muted-foreground hover:text-foreground bg-transparent"
               }`}
             >
-              <Link2 className="w-4 h-4" />
               <span>Link</span>
             </button>
             <button
@@ -252,7 +246,6 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                   : "text-muted-foreground hover:text-foreground bg-transparent"
               }`}
             >
-              <Mail className="w-4 h-4" />
               <span>Email</span>
             </button>
           </div>
@@ -323,12 +316,10 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                   <Button onClick={handleCopyLink} variant="forest">
                     {copied ? (
                       <>
-                        <Check className="w-4 h-4" />
                         <span>Copied!</span>
                       </>
                     ) : (
                       <>
-                        <Copy className="w-4 h-4" />
                         <span>Copy</span>
                       </>
                     )}
@@ -449,12 +440,10 @@ const ShareProject: React.FC<ShareProjectProps> = ({
                   </>
                 ) : emailSent ? (
                   <>
-                    <Check className="w-5 h-5" />
                     <span>Invitation Sent!</span>
                   </>
                 ) : (
                   <>
-                    <Mail className="w-5 h-5" />
                     <span>Send Invitation</span>
                   </>
                 )}

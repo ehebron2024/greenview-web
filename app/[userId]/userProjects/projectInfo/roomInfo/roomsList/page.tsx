@@ -7,7 +7,6 @@ import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2 } from "lucide-react";
 
 interface Room {
   id: string;
@@ -102,7 +101,6 @@ export default function RoomInfoPage() {
               }
               variant="forest"
             >
-              <Plus className="w-5 h-5" />
               Add Room
             </Button>
           </div>
@@ -171,7 +169,6 @@ export default function RoomInfoPage() {
                           variant="forest"
                           size="sm"
                         >
-                          <Edit className="w-4 h-4" />
                           Edit
                         </Button>
                         <Button
@@ -182,7 +179,6 @@ export default function RoomInfoPage() {
                           variant="destructive"
                           size="sm"
                         >
-                          <Trash2 className="w-4 h-4" />
                           Delete
                         </Button>
                       </div>
