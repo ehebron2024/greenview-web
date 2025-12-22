@@ -12,16 +12,6 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
-import {
-  FolderOpen,
-  Calendar,
-  MapPin,
-  DollarSign,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp,
-  Plus,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Project extends DocumentData {
@@ -312,21 +302,18 @@ const ProjectGallery: React.FC = () => {
                     <div className="space-y-2">
                       {project.location && (
                         <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                          <MapPin className="w-4 h-4 flex-shrink-0" />
                           <span className="truncate">{project.location}</span>
                         </div>
                       )}
 
                       {startDate && (
                         <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                          <Calendar className="w-4 h-4 flex-shrink-0" />
                           <span>{startDate}</span>
                         </div>
                       )}
 
                       {project.budget !== undefined && (
                         <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                          <DollarSign className="w-4 h-4 flex-shrink-0" />
                           <span>${project.budget.toLocaleString()}</span>
                         </div>
                       )}
@@ -340,18 +327,11 @@ const ProjectGallery: React.FC = () => {
                   variant="ghost"
                   className="w-full rounded-none border-t border-border justify-between"
                 >
-                  <span>
-                    View{" "}
-                    {project.roomCount !== undefined
-                      ? `${project.roomCount} `
-                      : ""}
-                    {project.roomCount === 1 ? "Room" : "Rooms"}
-                  </span>
-                  {isExpanded ? (
-                    <ChevronUp className="w-4 h-4" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4" />
-                  )}
+                  View{" "}
+                  {project.roomCount !== undefined
+                    ? `${project.roomCount} `
+                    : ""}
+                  {project.roomCount === 1 ? "Room" : "Rooms"}
                 </Button>
 
                 {/* Rooms Section */}
@@ -371,7 +351,6 @@ const ProjectGallery: React.FC = () => {
                       size="sm"
                       className="w-full mb-3"
                     >
-                      <Plus className="w-4 h-4" />
                       New Room
                     </Button>
 
@@ -405,7 +384,6 @@ const ProjectGallery: React.FC = () => {
                                   {room.status}
                                 </span>
                               )}
-                              <ChevronRight className="w-4 h-4 text-muted-foreground ml-2 flex-shrink-0" />
                             </div>
                           </div>
                         ))}
@@ -423,7 +401,6 @@ const ProjectGallery: React.FC = () => {
         </div>
       ) : (
         <div className="text-center py-16 bg-card rounded-xl border border-border">
-          <FolderOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground text-lg font-medium">
             No projects found
           </p>

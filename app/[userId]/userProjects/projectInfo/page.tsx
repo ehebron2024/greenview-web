@@ -6,7 +6,6 @@ import { db, auth } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import ShareProject from "@/components/share-project";
-import { Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Room {
@@ -147,7 +146,6 @@ export default function ProjectInfoPage() {
             </h1>
             {isOwner && (
               <Button onClick={() => setShowShare(true)} variant="forest">
-                <Share2 className="w-5 h-5" />
                 Share
               </Button>
             )}

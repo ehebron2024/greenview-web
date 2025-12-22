@@ -2,7 +2,6 @@
 
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FileUploadProps {
@@ -44,7 +43,6 @@ export default function FileUpload({
         }`}
       >
         <input {...getInputProps()} />
-        <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
         {isDragActive ? (
           <p className="text-primary font-medium">Drop files here...</p>
         ) : (
@@ -74,9 +72,7 @@ export default function FileUpload({
                 variant="ghost"
                 size="icon-sm"
                 className="ml-2 hover:text-destructive"
-              >
-                <X className="w-5 h-5" />
-              </Button>
+              ></Button>
             </div>
           ))}
         </div>
