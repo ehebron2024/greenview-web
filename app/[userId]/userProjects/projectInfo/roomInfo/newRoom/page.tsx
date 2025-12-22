@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase";
 import { collection, setDoc, doc, Timestamp } from "firebase/firestore";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { Button } from "@/components/ui/button";
 
 interface RoomFormData {
   name: string;
@@ -210,24 +211,13 @@ export default function NewRoomPage() {
             </div>
 
             <div className="flex gap-4 pt-8 border-t">
-              <
+              <Button
                 type="submit"
                 disabled={loading}
                 className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 transition disabled:opacity-50"
               >
                 {loading ? "Creating..." : "Create Room"}
-              </>
-              <
-                type=""
-                onClick={() =>
-                  router.push(
-                    `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
-                  )
-                }
-                className="flex-1 bg-gray-300 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-400 transition"
-              >
-                Cancel
-              </>
+              </Button>
             </div>
           </form>
         </div>

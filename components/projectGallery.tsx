@@ -342,7 +342,6 @@ const ProjectGallery: React.FC = () => {
                       placeholder={
                         rooms.length > 0 ? "Select a room..." : "No rooms yet"
                       }
-                      emptyText="No rooms available"
                       className="w-full mb-2"
                     />
                   )}
@@ -370,9 +369,6 @@ const ProjectGallery: React.FC = () => {
         </div>
       ) : (
         <div className="text-center py-16 bg-card rounded-xl border border-border">
-          <p className="text-muted-foreground text-lg font-medium">
-            No projects found
-          </p>
           <p className="text-muted-foreground text-sm mt-1">
             You have no projects yet. Start by adding one!
           </p>

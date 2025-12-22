@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -35,7 +34,6 @@ interface ComboboxProps {
 export function Combobox({
   items,
   placeholder = "Select item...",
-  emptyText = "No items found.",
   onSelect,
   className,
 }: ComboboxProps) {
@@ -64,7 +62,6 @@ export function Combobox({
             className="h-9 bg-background"
           />
           <CommandList className="bg-background">
-            <CommandEmpty className="bg-background">{emptyText}</CommandEmpty>
             <CommandGroup className="bg-background">
               {items.map((item) => (
                 <CommandItem
