@@ -48,17 +48,16 @@ function getCapitalizedNameFromEmail(email: string | null): string {
 }
 
 const ProjectGallery: React.FC = () => {
-  const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [userName, setUserName] = useState<string>("");
   const [projects, setProjects] = useState<Project[]>([]);
   const [roomsByProject, setRoomsByProject] = useState<Record<string, Room[]>>(
     {}
   );
   const [loadingRooms, setLoadingRooms] = useState<Record<string, boolean>>({});
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [userName, setUserName] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [expandedProject, setExpandedProject] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
@@ -110,7 +109,7 @@ const ProjectGallery: React.FC = () => {
             userProjects.push({ id: doc.id, ...doc.data() } as Project);
           });
           setProjects(userProjects);
-          setError(null);
+          setError("");
         },
         (firestoreError) => {
           console.error("Error fetching user's projects:", firestoreError);
@@ -128,14 +127,7 @@ const ProjectGallery: React.FC = () => {
     };
   }, [currentUser]);
 
-  const handleProjectClick = (projectId: string) => {
-    if (currentUser) {
-      router.push(
-        `/${currentUser.uid}/userProjects/projectInfo?projectId=${projectId}`
-      );
-    }
-  };
-
+  // Fetch rooms for a specific project
   const fetchRoomsForProject = async (projectId: string) => {
     if (!currentUser) return;
 
@@ -151,36 +143,35 @@ const ProjectGallery: React.FC = () => {
         "rooms"
       );
       const roomsSnapshot = await getDocs(roomsRef);
+
+      // Just fetch room data, no task counts needed
       const roomsData = roomsSnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
+        name: doc.data().name || "Untitled Room",
+        description: doc.data().description,
+        status: doc.data().status,
       })) as Room[];
 
       setRoomsByProject((prev) => ({ ...prev, [projectId]: roomsData }));
     } catch (error) {
-      console.error("Error fetching rooms:", error);
+      console.error(`Error fetching rooms for project ${projectId}:`, error);
     } finally {
       setLoadingRooms((prev) => ({ ...prev, [projectId]: false }));
     }
   };
 
   useEffect(() => {
-    if (projects.length > 0) {
+    if (projects.length > 0 && currentUser) {
       projects.forEach((project) => {
         fetchRoomsForProject(project.id);
       });
     }
-  }, [projects]);
+  }, [projects, currentUser]);
 
-  const navigateToRoom = (
-    projectId: string,
-    roomId: string,
-    e: React.MouseEvent
-  ) => {
-    e.stopPropagation();
+  const handleProjectClick = (projectId: string) => {
     if (currentUser) {
       router.push(
-        `/${currentUser.uid}/userProjects/projectInfo/roomInfo/${roomId}?projectId=${projectId}`
+        `/${currentUser.uid}/userProjects/projectInfo?projectId=${projectId}`
       );
     }
   };
@@ -327,23 +318,57 @@ const ProjectGallery: React.FC = () => {
                       Loading rooms...
                     </div>
                   ) : (
-                    <Combobox
-                      items={rooms.map((room) => ({
-                        label: room.name,
-                        value: room.id,
-                      }))}
-                      onSelect={(selected) => {
-                        if (currentUser) {
-                          router.push(
-                            `/${currentUser.uid}/userProjects/projectInfo/roomInfo/${selected.value}?projectId=${project.id}`
-                          );
+                    <>
+                      <Combobox
+                        items={rooms.map((room) => ({
+                          label: room.name,
+                          value: room.id,
+                        }))}
+                        onSelect={(selected) => {
+                          if (currentUser) {
+                            router.push(
+                              `/${currentUser.uid}/userProjects/projectInfo/roomInfo/${selected.value}?projectId=${project.id}`
+                            );
+                          }
+                        }}
+                        placeholder={
+                          rooms.length > 0 ? "Select a room..." : "No rooms yet"
                         }
-                      }}
-                      placeholder={
-                        rooms.length > 0 ? "Select a room..." : "No rooms yet"
-                      }
-                      className="w-full mb-3"
-                    />
+                        emptyText={
+                          project.roomCount && project.roomCount > 0
+                            ? `Project has ${project.roomCount} ${
+                                project.roomCount === 1 ? "room" : "rooms"
+                              } planned. Add rooms to view them here.`
+                            : "No rooms found"
+                        }
+                        className="w-full mb-3"
+                      />
+
+                      {/* Show room count info */}
+                      <p className="text-xs text-muted-foreground text-center mb-2">
+                        {rooms.length > 0 ? (
+                          <>
+                            {rooms.length}{" "}
+                            {rooms.length === 1 ? "room" : "rooms"} created
+                            {project.roomCount &&
+                              project.roomCount > rooms.length && (
+                                <>
+                                  {" "}
+                                  • {project.roomCount - rooms.length} more
+                                  planned
+                                </>
+                              )}
+                          </>
+                        ) : project.roomCount && project.roomCount > 0 ? (
+                          <>
+                            {project.roomCount}{" "}
+                            {project.roomCount === 1 ? "room" : "rooms"} planned
+                          </>
+                        ) : (
+                          "No rooms yet"
+                        )}
+                      </p>
+                    </>
                   )}
 
                   {/* New Room Button */}
