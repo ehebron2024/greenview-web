@@ -1,3 +1,5 @@
+/* Base styles - moved font import here, removed duplicate @layer */
+@import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&display=swap');
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
@@ -5,39 +7,60 @@
   /* Font Family */
   --font-oxygen: "Oxygen", ui-sans-serif, system-ui, sans-serif;
 
-  /* Border Radius */
+  /* Border Radius - used by rounded-lg, rounded-md, rounded-sm utilities */
   --radius-lg: 0.5rem;
   --radius-md: calc(0.5rem - 2px);
   --radius-sm: calc(0.5rem - 4px);
 
   /* Deep Forest Color Palette */
+  /* Background colors - light cream/off-white */
   --color-background: oklch(0.96 0.01 85);
   --color-foreground: oklch(0.25 0.02 145);
 
+  /* Card colors - added for card components */
+  --color-card: oklch(0.99 0.005 85);
+  --color-card-foreground: oklch(0.25 0.02 145);
+
+  /* Primary colors - deep forest green */
   --color-primary: oklch(0.30 0.08 150);
   --color-primary-foreground: oklch(0.98 0.01 85);
 
+  /* Secondary colors - soft sage/gray-green */
   --color-secondary: oklch(0.88 0.02 85);
   --color-secondary-foreground: oklch(0.25 0.02 145);
 
+  /* Muted colors - for subtle backgrounds and disabled states */
   --color-muted: oklch(0.92 0.015 85);
   --color-muted-foreground: oklch(0.45 0.02 145);
 
+  /* Accent colors - medium forest green for interactive elements */
   --color-accent: oklch(0.45 0.10 155);
   --color-accent-foreground: oklch(0.98 0.01 85);
 
+  /* Border and input colors - subtle gray with green tint */
   --color-border: oklch(0.85 0.015 85);
+  --color-input: oklch(0.85 0.015 85);
+  
+  /* Ring color - for focus states on buttons/inputs */
   --color-ring: oklch(0.45 0.10 155);
   
+  /* Destructive colors - for delete/error actions */
   --color-destructive: oklch(0.55 0.22 25);
+  --color-destructive-foreground: oklch(0.98 0.01 85);
+
+  /* Popover colors - added for dropdown/combobox backgrounds */
+  --color-popover: oklch(0.99 0.005 85);
+  --color-popover-foreground: oklch(0.25 0.02 145);
 }
 
-@layer base {
-  @import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&display=swap');
 
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    font-family: var(--font-oxygen);
-  }
+/* Apply base styles to all elements */
+* {
+  font-family: var(--font-oxygen);
+}
+
+/* Body specific styles */
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
 }

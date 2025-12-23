@@ -50,47 +50,51 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-5">
-      <img
-        src="/print_transparent.svg"
-        alt="GreenView Logo"
-        className="w-[150px] mb-5"
-      />
+      <div className="bg-card p-8 rounded-lg shadow-lg border border-border">
+        <img
+          src="/print_transparent.svg"
+          alt="GreenView Logo"
+          className="w-[200px] mb-5"
+        />
 
-      {!isLoggedIn ? (
-        <div className="w-full max-w-md">
-          {showSignUp ? (
-            <>
-              <SignUpForm onSignUpSuccess={handleSignUpSuccess} />
-              <p className="mt-5 text-center text-foreground">
-                Already have an account?{" "}
-                <Button
-                  onClick={() => setShowSignUp(false)}
-                  className="p-0 h-auto"
-                >
-                  Sign In
-                </Button>
-              </p>
-            </>
-          ) : (
-            <>
-              <SignInForm onSignInSuccess={handleSignInSuccess} />
-              <p className="mt-5 text-center text-foreground">
-                Don't have an account?{" "}
-                <Button
-                  onClick={() => setShowSignUp(true)}
-                  className="p-0 h-auto"
-                >
-                  Sign Up
-                </Button>
-              </p>
-            </>
-          )}
-        </div>
-      ) : (
-        <Button onClick={handleViewProjects} variant="forest" size="lg">
-          View My Projects
-        </Button>
-      )}
+        {!isLoggedIn ? (
+          <div className="w-full max-w-md">
+            {showSignUp ? (
+              <>
+                <SignUpForm onSignUpSuccess={handleSignUpSuccess} />
+                <p className="mt-5 text-center text-foreground">
+                  Already have an account?{" "}
+                  <Button
+                    onClick={() => setShowSignUp(false)}
+                    className="p-0 h-auto"
+                  >
+                    Sign In
+                  </Button>
+                </p>
+              </>
+            ) : (
+              <>
+                <SignInForm onSignInSuccess={handleSignInSuccess} />
+                <p className="mt-5 text-center text-foreground">
+                  Don't have an account?{" "}
+                  <Button
+                    onClick={() => setShowSignUp(true)}
+                    className="p-0 h-auto"
+                  >
+                    Sign Up
+                  </Button>
+                </p>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center">
+            <Button onClick={handleViewProjects} variant="forest" size="lg">
+              View My Projects
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
