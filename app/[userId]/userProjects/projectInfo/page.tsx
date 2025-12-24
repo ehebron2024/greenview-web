@@ -271,26 +271,20 @@ export default function ProjectInfoPage() {
           </div>
         </div>
 
-        {/* Rooms Navigation */}
-        <div className="bg-card rounded-lg shadow-lg border border-border p-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-foreground">Rooms</h2>
-            <div className="flex gap-2">
-              <Button
-                onClick={() =>
-                  router.push(
-                    `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
-                  )
-                }
-                variant="forest"
-              >
-                {project.name ? `${project.name} Rooms` : "Project's Rooms"}
-              </Button>
-            </div>
-          </div>
-          <p className="text-muted-foreground">
-            View and manage rooms on the next page.
-          </p>
+        {/* Rooms Button - Separated at bottom */}
+        <div className="mt-6">
+          <Button
+            onClick={() =>
+              router.push(
+                `/${userId}/userProjects/projectInfo/roomInfo/roomsList?projectId=${projectId}`
+              )
+            }
+            variant="forest"
+            size="lg"
+            className="w-full"
+          >
+            View Rooms
+          </Button>
         </div>
       </div>
 
