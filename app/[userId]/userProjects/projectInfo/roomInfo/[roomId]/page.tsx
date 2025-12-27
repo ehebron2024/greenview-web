@@ -23,6 +23,12 @@ interface Task {
   createdAt?: any;
 }
 
+interface Comment {
+  id: string;
+  text: string;
+  commentedAt?: any;
+  commentedBy: any;
+}
 interface Room {
   id: string;
   name: string;
@@ -50,6 +56,16 @@ export default function RoomDetailPage() {
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskStatus, setNewTaskStatus] = useState("pending");
   const [addingTask, setAddingTask] = useState(false);
+
+  // Add comment states
+  const [commentsByTask, setCommentsByTask] = useState<
+    Record<string, Comment[]>
+  >({});
+  const [showAddComment, setShowAddComment] = useState<Record<string, boolean>>(
+    {}
+  );
+  const [newComment, setNewComment] = useState<Record<string, string>>({});
+  const [addingComment, setAddingComment] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -164,6 +180,83 @@ export default function RoomDetailPage() {
       alert("Failed to add task");
     } finally {
       setAddingTask(false);
+    }
+  };
+
+  const fetchComments = async (taskId: string) => {
+    if (!projectId || !roomId || !userId || !currentUser) return;
+
+    try {
+      const commentsRef = collection(
+        db,
+        "users",
+        userId,
+        "projects",
+        projectId,
+        "rooms",
+        roomId,
+        "tasks",
+        taskId,
+        "comments"
+      );
+      const commentsSnap = await getDocs(commentsRef);
+      const commentsList: Comment[] = [];
+
+      commentsSnap.forEach((doc) => {
+        commentsList.push({ id: doc.id, ...doc.data() } as Comment);
+      });
+
+      setCommentsByTask((prev) => ({ ...prev, [taskId]: commentsList }));
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+    }
+  };
+
+  // Fetch comments when tasks are loaded
+  useEffect(() => {
+    if (tasks.length > 0) {
+      tasks.forEach((task) => {
+        fetchComments(task.id);
+      });
+    }
+  }, [tasks]);
+
+  const handleAddComment = async (taskId: string) => {
+    const commentText = newComment[taskId]?.trim();
+    if (!commentText || !projectId || !roomId || !userId) return;
+
+    setAddingComment(true);
+    try {
+      const commentsRef = collection(
+        db,
+        "users",
+        userId,
+        "projects",
+        projectId,
+        "rooms",
+        roomId,
+        "tasks",
+        taskId,
+        "comments"
+      );
+
+      await addDoc(commentsRef, {
+        text: commentText,
+        commentedBy: currentUser,
+        commentedAt: serverTimestamp(),
+      });
+
+      // Clear the input
+      setNewComment((prev) => ({ ...prev, [taskId]: "" }));
+      setShowAddComment((prev) => ({ ...prev, [taskId]: false }));
+
+      // Refresh comments
+      await fetchComments(taskId);
+    } catch (err) {
+      console.error("Error adding comment:", err);
+      alert("Failed to add comment");
+    } finally {
+      setAddingComment(false);
     }
   };
 
@@ -371,6 +464,7 @@ export default function RoomDetailPage() {
                   className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="pending">Pending</option>
+                  <option value="in-progress">Planning</option>
                   <option value="in-progress">In Progress</option>
                   <option value="completed">Completed</option>
                 </select>
@@ -390,7 +484,7 @@ export default function RoomDetailPage() {
                   key={task.id}
                   className="border border-border rounded-lg p-4 hover:shadow-md transition bg-card"
                 >
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="text-lg font-bold text-foreground">
                         {task.name}
@@ -405,6 +499,81 @@ export default function RoomDetailPage() {
                       <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary border border-primary/20">
                         {task.status}
                       </span>
+                    )}
+                  </div>
+
+                  {/* Comments Section */}
+                  <div className="border-t border-border pt-4 mt-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="text-sm font-semibold text-foreground">
+                        Comments ({commentsByTask[task.id]?.length || 0})
+                      </h4>
+                      <Button
+                        onClick={() =>
+                          setShowAddComment((prev) => ({
+                            ...prev,
+                            [task.id]: !prev[task.id],
+                          }))
+                        }
+                        variant="outline"
+                        size="sm"
+                      >
+                        {showAddComment[task.id] ? "Cancel" : "+ Add Comment"}
+                      </Button>
+                    </div>
+
+                    {/* Add Comment Form */}
+                    {showAddComment[task.id] && (
+                      <div className="mb-3 p-3 border border-border rounded-md bg-muted">
+                        <textarea
+                          value={newComment[task.id] || ""}
+                          onChange={(e) =>
+                            setNewComment((prev) => ({
+                              ...prev,
+                              [task.id]: e.target.value,
+                            }))
+                          }
+                          placeholder="Write a comment..."
+                          className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                          rows={3}
+                        />
+                        <Button
+                          onClick={() => handleAddComment(task.id)}
+                          disabled={
+                            addingComment || !newComment[task.id]?.trim()
+                          }
+                          variant="forest"
+                          size="sm"
+                          className="mt-2"
+                        >
+                          {addingComment ? "Adding..." : "Add Comment"}
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Display Comments */}
+                    {commentsByTask[task.id]?.length > 0 ? (
+                      <div className="space-y-2">
+                        {commentsByTask[task.id].map((comment) => (
+                          <div
+                            key={comment.id}
+                            className="p-3 bg-muted rounded-md border border-border"
+                          >
+                            <p className="text-sm text-foreground">
+                              {comment.text}
+                            </p>
+                            {comment.commentedAt && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {formatDate(comment.commentedAt)}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">
+                        No comments yet.
+                      </p>
                     )}
                   </div>
                 </div>
