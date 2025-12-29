@@ -28,6 +28,7 @@ interface Project extends DocumentData {
   contact?: string;
   createdAt?: any;
   lastUpdated?: any;
+  userId?: string;
 }
 
 interface Room {
@@ -56,12 +57,19 @@ const ProjectGallery: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userName, setUserName] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+    const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       setCurrentUser(user);
+
+      if (user) {
+        const tokenResult = await user.getIdTokenResult();
+        setIsAdmin(tokenResult.claims.admin === true);
+      }
+
       setLoading(false);
     });
 
@@ -94,28 +102,68 @@ const ProjectGallery: React.FC = () => {
     let unsubscribeFirestore: () => void;
 
     if (currentUser) {
-      const userProjectsCollectionRef = collection(
-        db,
-        "users",
-        currentUser.uid,
-        "projects"
-      );
+      if (isAdmin) {
+        const fetchAllProjects = async () => {
+          try {
+            const usersRef = collection(db, "users");
+            const usersSnapshot = await getDocs(usersRef);
+            const allProjects: Project[] = [];
 
-      unsubscribeFirestore = onSnapshot(
-        userProjectsCollectionRef,
-        (querySnapshot) => {
-          const userProjects: Project[] = [];
-          querySnapshot.forEach((doc) => {
-            userProjects.push({ id: doc.id, ...doc.data() } as Project);
-          });
-          setProjects(userProjects);
-          setError("");
-        },
-        (firestoreError) => {
-          console.error("Error fetching user's projects:", firestoreError);
-          setError(`Failed to load projects: ${firestoreError.message}`);
-        }
-      );
+            for (const userDoc of usersSnapshot.docs) {
+              const userProjectsRef = collection(
+                db,
+                "users",
+                userDoc.id,
+                "projects"
+              );
+              const projectsSnapshot = await getDocs(userProjectsRef);
+
+              projectsSnapshot.forEach((doc) => {
+                allProjects.push({
+                  id: doc.id,
+                  userId: userDoc.id,
+                  ...doc.data(),
+                } as Project & { userId: string });
+              });
+            }
+
+            setProjects(allProjects);
+            setError("");
+          } catch (err) {
+            console.error("Error fetching all projects:", err);
+            setError("Failed to load projects");
+          }
+        };
+
+        fetchAllProjects();
+      } else {
+        const userProjectsCollectionRef = collection(
+          db,
+          "users",
+          currentUser.uid,
+          "projects"
+        );
+
+        unsubscribeFirestore = onSnapshot(
+          userProjectsCollectionRef,
+          (querySnapshot) => {
+            const userProjects: Project[] = [];
+            querySnapshot.forEach((doc) => {
+              userProjects.push({
+                id: doc.id,
+                userId: currentUser.uid,
+                ...doc.data(),
+              } as Project & { userId: string });
+            });
+            setProjects(userProjects);
+            setError("");
+          },
+          (firestoreError) => {
+            console.error("Error fetching user's projects:", firestoreError);
+            setError(`Failed to load projects: ${firestoreError.message}`);
+          }
+        );
+      }
     } else {
       setProjects([]);
     }
@@ -125,26 +173,34 @@ const ProjectGallery: React.FC = () => {
         unsubscribeFirestore();
       }
     };
-  }, [currentUser]);
+  }, [currentUser, isAdmin]);
 
-  // Fetch rooms for a specific project
+  const handleProjectClick = (projectId: string) => {
+    if (currentUser) {
+      const userId = isAdmin && projectId ? projectId : currentUser.uid;
+      router.push(`/${userId}/userProjects/projectInfo?projectId=${projectId}`);
+    }
+  };
+
   const fetchRoomsForProject = async (projectId: string) => {
     if (!currentUser) return;
 
     setLoadingRooms((prev) => ({ ...prev, [projectId]: true }));
 
     try {
+      const project = projects.find((p) => p.id === projectId);
+      const userId = project?.userId || currentUser.uid;
+
       const roomsRef = collection(
         db,
         "users",
-        currentUser.uid,
+        userId,
         "projects",
         projectId,
         "rooms"
       );
       const roomsSnapshot = await getDocs(roomsRef);
 
-      // Just fetch room data, no task counts needed
       const roomsData = roomsSnapshot.docs.map((doc) => ({
         id: doc.id,
         name: doc.data().name || "Untitled Room",
@@ -167,14 +223,6 @@ const ProjectGallery: React.FC = () => {
       });
     }
   }, [projects, currentUser]);
-
-  const handleProjectClick = (projectId: string) => {
-    if (currentUser) {
-      router.push(
-        `/${currentUser.uid}/userProjects/projectInfo?projectId=${projectId}`
-      );
-    }
-  };
 
   const formatDate = (date: any) => {
     if (!date) return null;
@@ -326,8 +374,9 @@ const ProjectGallery: React.FC = () => {
                         }))}
                         onSelect={(selected) => {
                           if (currentUser) {
+                            const userId = project.userId || currentUser.uid;
                             router.push(
-                              `/${currentUser.uid}/userProjects/projectInfo/roomInfo/${selected.value}?projectId=${project.id}`
+                              `/${userId}/userProjects/projectInfo/roomInfo/${selected.value}?projectId=${project.id}`
                             );
                           }
                         }}
@@ -376,8 +425,9 @@ const ProjectGallery: React.FC = () => {
                     onClick={(e) => {
                       e.stopPropagation();
                       if (currentUser) {
+                        const userId = project.userId || currentUser.uid;
                         router.push(
-                          `/${currentUser.uid}/userProjects/projectInfo/roomInfo/newRoom?projectId=${project.id}`
+                          `/${userId}/userProjects/projectInfo/roomInfo/newRoom?projectId=${project.id}`
                         );
                       }
                     }}

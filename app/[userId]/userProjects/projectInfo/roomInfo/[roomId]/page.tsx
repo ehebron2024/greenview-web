@@ -56,6 +56,7 @@ export default function RoomDetailPage() {
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskStatus, setNewTaskStatus] = useState("pending");
   const [addingTask, setAddingTask] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Add comment states
   const [commentsByTask, setCommentsByTask] = useState<
@@ -68,9 +69,13 @@ export default function RoomDetailPage() {
   const [addingComment, setAddingComment] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser(user.uid);
+
+        // Check if user is admin
+        const tokenResult = await user.getIdTokenResult();
+        setIsAdmin(tokenResult.claims.admin === true);
       } else {
         setError("User not authenticated");
         setLoading(false);
