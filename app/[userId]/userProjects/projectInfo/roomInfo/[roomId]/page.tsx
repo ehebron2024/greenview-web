@@ -27,7 +27,8 @@ interface Comment {
   id: string;
   text: string;
   commentedAt?: any;
-  commentedBy: any;
+  commentedBy: string;
+  commenterName?: string;
 }
 interface Room {
   id: string;
@@ -228,10 +229,15 @@ export default function RoomDetailPage() {
 
   const handleAddComment = async (taskId: string) => {
     const commentText = newComment[taskId]?.trim();
-    if (!commentText || !projectId || !roomId || !userId) return;
+    if (!commentText || !projectId || !roomId || !userId || !currentUser)
+      return;
 
     setAddingComment(true);
     try {
+      // Get the current user's name from auth
+      const user = auth.currentUser;
+      const userName = user?.displayName || user?.email || "Anonymous";
+
       const commentsRef = collection(
         db,
         "users",
@@ -248,6 +254,7 @@ export default function RoomDetailPage() {
       await addDoc(commentsRef, {
         text: commentText,
         commentedBy: currentUser,
+        commenterName: userName, // Add commenter's name
         commentedAt: serverTimestamp(),
       });
 
@@ -564,14 +571,19 @@ export default function RoomDetailPage() {
                             key={comment.id}
                             className="p-3 bg-muted rounded-md border border-border"
                           >
+                            <div className="flex justify-between items-start mb-1">
+                              <p className="text-xs font-semibold text-muted-foreground">
+                                {comment.commenterName || "Anonymous"}
+                              </p>
+                              {comment.commentedAt && (
+                                <p className="text-xs text-muted-foreground">
+                                  {formatDate(comment.commentedAt)}
+                                </p>
+                              )}
+                            </div>
                             <p className="text-sm text-foreground">
                               {comment.text}
                             </p>
-                            {comment.commentedAt && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {formatDate(comment.commentedAt)}
-                              </p>
-                            )}
                           </div>
                         ))}
                       </div>
