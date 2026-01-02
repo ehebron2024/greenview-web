@@ -22,6 +22,7 @@ function getFirstNameFromEmail(email: string | null): string {
 export default function UserPage() {
   const router = useRouter();
   const [email, setEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -34,20 +35,32 @@ export default function UserPage() {
     }
 
     setUserId(currentUser.uid);
+    setEmail(currentUser.email); // Get email from auth directly
 
-    async function fetchUserEmail() {
+    async function fetchUserName() {
       if (currentUser) {
-        const userRef = doc(db, "users", currentUser.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          setEmail(userSnap.data().email || null);
+        try {
+          const userRef = doc(db, "users", currentUser.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            const userData = userSnap.data();
+            // Check for name field in Firestore
+            setUserName(userData.name || null);
+            // Update email from Firestore if different
+            if (userData.email) {
+              setEmail(userData.email);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
         }
       }
     }
-    fetchUserEmail();
+    fetchUserName();
   }, [router]);
 
-  const firstName = getFirstNameFromEmail(email);
+  // Use userName if available, otherwise derive from email
+  const displayName = userName || getFirstNameFromEmail(email);
 
   const handleProjectsClick = () => {
     if (userId) {
@@ -71,7 +84,7 @@ export default function UserPage() {
         />
 
         <h2 className="text-2xl font-bold mb-6 text-foreground">
-          Welcome, {firstName}!
+          Welcome, {displayName}!
         </h2>
 
         <div className="flex flex-col gap-3">
