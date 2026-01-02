@@ -10,11 +10,15 @@ import {
   getDocs,
   addDoc,
   serverTimestamp,
+  onSnapshot,
+  deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAdmin } from "@/hooks/useAdmin";
 
 interface Task {
   id: string;
@@ -47,6 +51,7 @@ export default function RoomDetailPage() {
   const roomId = params.roomId as string;
   const projectId = searchParams.get("projectId") as string | null;
   const userId = params.userId as string;
+  const { isAdmin, loading: adminLoading } = useAdmin();
   const [room, setRoom] = useState<Room | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +62,6 @@ export default function RoomDetailPage() {
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskStatus, setNewTaskStatus] = useState("pending");
   const [addingTask, setAddingTask] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   // Add comment states
   const [commentsByTask, setCommentsByTask] = useState<
@@ -73,10 +77,6 @@ export default function RoomDetailPage() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser(user.uid);
-
-        // Check if user is admin
-        const tokenResult = await user.getIdTokenResult();
-        setIsAdmin(tokenResult.claims.admin === true);
       } else {
         setError("User not authenticated");
         setLoading(false);
@@ -205,14 +205,33 @@ export default function RoomDetailPage() {
         taskId,
         "comments"
       );
-      const commentsSnap = await getDocs(commentsRef);
-      const commentsList: Comment[] = [];
 
-      commentsSnap.forEach((doc) => {
-        commentsList.push({ id: doc.id, ...doc.data() } as Comment);
+      // Use onSnapshot for real-time updates
+      const unsubscribe = onSnapshot(commentsRef, (snapshot) => {
+        const commentsList: Comment[] = [];
+
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          commentsList.push({
+            id: doc.id,
+            ...data,
+          } as Comment);
+        });
+
+        // Sort by date
+        commentsList.sort((a, b) => {
+          if (!a.commentedAt) return 1;
+          if (!b.commentedAt) return -1;
+          const aTime = a.commentedAt.toMillis ? a.commentedAt.toMillis() : 0;
+          const bTime = b.commentedAt.toMillis ? b.commentedAt.toMillis() : 0;
+          return bTime - aTime;
+        });
+
+        setCommentsByTask((prev) => ({ ...prev, [taskId]: commentsList }));
       });
 
-      setCommentsByTask((prev) => ({ ...prev, [taskId]: commentsList }));
+      // Store unsubscribe functions if needed
+      return unsubscribe;
     } catch (err) {
       console.error("Error fetching comments:", err);
     }
@@ -289,6 +308,66 @@ export default function RoomDetailPage() {
     }
   };
 
+  const handleDeleteTask = async (taskId: string) => {
+    if (!canEdit) {
+      alert("You don't have permission to delete tasks");
+      return;
+    }
+
+    if (!confirm("Are you sure you want to delete this task?")) return;
+
+    try {
+      await deleteDoc(
+        doc(
+          db,
+          "users",
+          userId,
+          "projects",
+          projectId!,
+          "rooms",
+          roomId,
+          "tasks",
+          taskId
+        )
+      );
+      setTasks(tasks.filter((t) => t.id !== taskId));
+    } catch (err) {
+      console.error("Error deleting task:", err);
+      alert("Failed to delete task");
+    }
+  };
+
+  const handleDeleteComment = async (taskId: string, commentId: string) => {
+    if (!canEdit) {
+      alert("You don't have permission to delete comments");
+      return;
+    }
+
+    if (!confirm("Are you sure you want to delete this comment?")) return;
+
+    try {
+      await deleteDoc(
+        doc(
+          db,
+          "users",
+          userId,
+          "projects",
+          projectId!,
+          "rooms",
+          roomId,
+          "tasks",
+          taskId,
+          "comments",
+          commentId
+        )
+      );
+      await fetchComments(taskId);
+    } catch (err) {
+      console.error("Error deleting comment:", err);
+      alert("Failed to delete comment");
+    }
+  };
+
   const formatDate = (date: any) => {
     if (!date) return "N/A";
     const dateObj = date.toDate ? date.toDate() : new Date(date);
@@ -308,7 +387,7 @@ export default function RoomDetailPage() {
     });
   };
 
-  if (loading) {
+  if (loading || adminLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-foreground text-lg">Loading...</div>
@@ -345,9 +424,17 @@ export default function RoomDetailPage() {
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
 
+  const canEdit = currentUser === userId || isAdmin;
+
   return (
     <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-4xl mx-auto">
+        {isAdmin && currentUser !== userId && (
+          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
+            🔑 Admin Mode: You're viewing another user's room
+          </div>
+        )}
+
         <div className="bg-card rounded-lg shadow-lg border border-border p-8 mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-6">
             {room.name}
@@ -470,12 +557,14 @@ export default function RoomDetailPage() {
         <div className="bg-card rounded-lg shadow-lg border border-border p-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-foreground">Tasks</h2>
-            <Button
-              onClick={() => setShowAddTask(!showAddTask)}
-              variant={showAddTask ? "secondary" : "forest"}
-            >
-              {showAddTask ? "Cancel" : "+ Add Task"}
-            </Button>
+            {canEdit && (
+              <Button
+                onClick={() => setShowAddTask(!showAddTask)}
+                variant={showAddTask ? "secondary" : "forest"}
+              >
+                {showAddTask ? "Cancel" : "+ Add Task"}
+              </Button>
+            )}
           </div>
 
           {showAddTask && (
@@ -541,6 +630,15 @@ export default function RoomDetailPage() {
                       <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary border border-primary/20">
                         {task.status}
                       </span>
+                    )}
+                    {canEdit && (
+                      <Button
+                        onClick={() => handleDeleteTask(task.id)}
+                        variant="destructive"
+                        size="sm"
+                      >
+                        Delete Task
+                      </Button>
                     )}
                   </div>
 
@@ -609,6 +707,18 @@ export default function RoomDetailPage() {
                                 <p className="text-xs text-muted-foreground">
                                   {formatDateTime(comment.commentedAt)}
                                 </p>
+                              )}
+                              {canEdit && (
+                                <Button
+                                  onClick={() =>
+                                    handleDeleteComment(task.id, comment.id)
+                                  }
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                >
+                                  Delete
+                                </Button>
                               )}
                             </div>
                             <p className="text-sm text-foreground">
