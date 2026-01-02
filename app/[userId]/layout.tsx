@@ -35,7 +35,14 @@ export default function UserLayout({
     }
   }, [user, loading, isAdmin, adminLoading, router, params.userId]);
 
-  if (loading || adminLoading) return null;
+  // Show loading state while checking auth and admin status
+  if (loading || adminLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }
