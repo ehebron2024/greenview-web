@@ -50,15 +50,15 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-5">
-      <div className="bg-card p-8 rounded-lg shadow-lg border border-border">
+      <div className="bg-card p-8 rounded-lg shadow-lg border border-border w-full max-w-xl">
         <img
           src="/print_transparent.svg"
           alt="GreenView Logo"
-          className="w-[200px] mb-5"
+          className="w-[200px] mx-auto mb-5"
         />
 
         {!isLoggedIn ? (
-          <div className="w-full max-w-md">
+          <div className="w-full">
             {showSignUp ? (
               <>
                 <SignUpForm onSignUpSuccess={handleSignUpSuccess} />

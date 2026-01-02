@@ -291,7 +291,7 @@ export default function NewProjectPage() {
           >
             {/* ...existing form fields... */}
             <h2 className="text-xl font-semibold text-gray-800 border-b pb-4">
-              User Information
+              Client Information
             </h2>
 
             {/* Email */}
