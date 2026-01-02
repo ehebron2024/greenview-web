@@ -234,9 +234,26 @@ export default function RoomDetailPage() {
 
     setAddingComment(true);
     try {
-      // Get the current user's name from auth
+      // Get the current user's name from Firestore users collection
       const user = auth.currentUser;
-      const userName = user?.displayName || user?.email || "Anonymous";
+      let userName = "Anonymous";
+
+      if (user) {
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            userName = userData.name || user.email || "Anonymous";
+          } else {
+            userName = user.email || "Anonymous";
+          }
+        } catch (err) {
+          console.error("Error fetching user name:", err);
+          userName = user.email || "Anonymous";
+        }
+      }
 
       const commentsRef = collection(
         db,
@@ -254,7 +271,7 @@ export default function RoomDetailPage() {
       await addDoc(commentsRef, {
         text: commentText,
         commentedBy: currentUser,
-        commenterName: userName, // Add commenter's name
+        commenterName: userName, // Now fetches from Firestore users/{uid}.name
         commentedAt: serverTimestamp(),
       });
 
