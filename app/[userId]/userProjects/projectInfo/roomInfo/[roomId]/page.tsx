@@ -289,6 +289,25 @@ export default function RoomDetailPage() {
     }
   };
 
+  const formatDate = (date: any) => {
+    if (!date) return "N/A";
+    const dateObj = date.toDate ? date.toDate() : new Date(date);
+    return dateObj.toLocaleDateString();
+  };
+
+  const formatDateTime = (date: any) => {
+    if (!date) return "N/A";
+    const dateObj = date.toDate ? date.toDate() : new Date(date);
+    return dateObj.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -314,12 +333,6 @@ export default function RoomDetailPage() {
       </div>
     );
   }
-
-  const formatDate = (date: any) => {
-    if (!date) return "N/A";
-    const dateObj = date.toDate ? date.toDate() : new Date(date);
-    return dateObj.toLocaleDateString();
-  };
 
   const images = room.images || [];
   const currentImage = images[currentImageIndex];
@@ -594,7 +607,7 @@ export default function RoomDetailPage() {
                               </p>
                               {comment.commentedAt && (
                                 <p className="text-xs text-muted-foreground">
-                                  {formatDate(comment.commentedAt)}
+                                  {formatDateTime(comment.commentedAt)}
                                 </p>
                               )}
                             </div>
