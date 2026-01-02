@@ -83,19 +83,27 @@ export default function ProjectInfoPage() {
           setProject(projectData);
         } else {
           setError("Project not found");
+          // Redirect back to projects after 2 seconds
+          setTimeout(() => {
+            router.push(`/${currentUser}`);
+          }, 2000);
         }
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Unknown error";
         setError(`Failed to load project: ${errorMessage}`);
         console.error("Project fetch error:", err);
+        // Redirect back on error
+        setTimeout(() => {
+          router.push(`/${currentUser}`);
+        }, 2000);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProject();
-  }, [projectId, currentUser, userId]);
+  }, [projectId, currentUser, userId, router]);
 
   useEffect(() => {
     if (project && currentUser) {
