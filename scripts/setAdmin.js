@@ -9,11 +9,16 @@ admin.initializeApp({
 
 async function setAdminCustomClaim(uid) {
   try {
+    console.log('🔍 Looking up user:', uid);
+    
     // Get the user's current custom claims
     const user = await admin.auth().getUser(uid);
+    console.log('📧 User email:', user.email);
+    console.log('🏷️  Current custom claims:', user.customClaims);
+
     const customClaims = user.customClaims || {};
 
-    // Check if the user is already an admin to avoid unnecessary updates
+    // Check if the user is already an admin
     if (customClaims.admin === true) {
       console.log(`✅ User ${uid} is already an admin.`);
       console.log('Custom claims:', customClaims);
@@ -21,42 +26,53 @@ async function setAdminCustomClaim(uid) {
       return;
     }
 
+    console.log('⚙️  Setting admin claim...');
+    
     // Set the 'admin' claim to true
     await admin.auth().setCustomUserClaims(uid, { ...customClaims, admin: true });
+    
     console.log(`✅ Custom claim 'admin: true' set for user ${uid}.`);
 
     // Verify the claim was set
     const updatedUser = await admin.auth().getUser(uid);
-    console.log('Updated custom claims:', updatedUser.customClaims);
+    console.log('✅ Updated custom claims:', updatedUser.customClaims);
 
-    console.log('\n⚠️  IMPORTANT: User must sign out and sign in again for changes to take effect.');
-    console.log('Or call auth.currentUser.getIdToken(true) on the client to force a token refresh.');
+    console.log('\n⚠️  IMPORTANT NEXT STEPS:');
+    console.log('1. Sign out from your web app');
+    console.log('2. Sign back in');
+    console.log('3. Or run: auth.currentUser.getIdToken(true) in browser console');
 
     process.exit(0);
   } catch (error) {
     console.error('❌ Error setting custom admin claim:', error);
+    console.error('Error details:', error.message);
     process.exit(1);
   }
 }
 
 async function setAdminByEmail(email) {
   try {
+    console.log('🔍 Looking up user by email:', email);
+    
     // Get user by email first
     const user = await admin.auth().getUserByEmail(email);
-    console.log(`Found user: ${email} (UID: ${user.uid})`);
+    console.log(`✅ Found user: ${email}`);
+    console.log(`   UID: ${user.uid}`);
     
     // Now set the admin claim using the UID
     await setAdminCustomClaim(user.uid);
   } catch (error) {
     console.error('❌ Error finding user by email:', error);
+    console.error('Error details:', error.message);
+    
+    if (error.code === 'auth/user-not-found') {
+      console.log('\n💡 TIP: Make sure the user exists in Firebase Authentication');
+    }
+    
     process.exit(1);
   }
 }
 
-// Usage examples:
-
-// Option 1: Set admin by UID (if you know the UID)
-// setAdminCustomClaim('your_user_uid_here');
-
-// Option 2: Set admin by email (easier)
+// Run it
+console.log('🚀 Starting admin setup script...\n');
 setAdminByEmail('eden.hebron@gmail.com');

@@ -1,45 +1,155 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useUser } from "@/context/UserContext";
+import React, { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { Button } from "@/components/ui/button";
+import { useAdmin } from "@/hooks/useAdmin";
 
 export default function NavigationBar() {
   const router = useRouter();
-  const { user, loading } = useUser();
+  const pathname = usePathname();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const { isAdmin, loading: adminLoading } = useAdmin();
 
-  if (loading) return null;
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
+  const handleLogoClick = () => {
+    if (user) {
+      router.push(`/${user.uid}`);
+    } else {
+      router.push("/");
+    }
+  };
+
+  const isHomePage = pathname === "/";
+
+  if (loading) {
+    return (
+      <nav className="bg-card shadow-md border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <img
+                src="/print_transparent.svg"
+                alt="GreenView Logo"
+                className="h-10 w-auto"
+              />
+            </div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
-    <nav className="sticky top-0 z-50 py-4 px-4 border-b border-border bg-background/90 backdrop-blur">
-      <div className="flex items-center justify-between max-w-7xl mx-auto">
-        <Button
-          onClick={() =>
-            user ? router.push(`/${user.uid}`) : router.push("/")
-          }
-          variant="forest-inverted"
-          size="sm"
-        >
-          Home
-        </Button>
+    <nav className="bg-card shadow-md border-b border-border">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleLogoClick}
+              className="flex items-center hover:opacity-80 transition"
+            >
+              <img
+                src="/print_transparent.svg"
+                alt="GreenView Logo"
+                className="h-10 w-auto"
+              />
+            </button>
 
-        <div className="flex flex-col items-center gap-1 absolute left-1/2 -translate-x-1/2">
-          <img
-            src="/images/fulllogo_transparent_1.png"
-            alt="GreenView Logo"
-            className="w-32 h-32"
-          />
+            {/* Admin Badge in Navbar */}
+            {!adminLoading && isAdmin && (
+              <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-amber-100 border border-amber-300 rounded-full">
+                <span className="text-amber-800 text-sm">🔑</span>
+                <span className="text-amber-800 text-xs font-semibold">
+                  ADMIN
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Navigation Items */}
+          <div className="flex items-center gap-4">
+            {user ? (
+              <>
+                {/* Mobile Admin Badge */}
+                {!adminLoading && isAdmin && (
+                  <div className="md:hidden flex items-center">
+                    <span className="text-amber-800 text-lg">🔑</span>
+                  </div>
+                )}
+
+                {/* User Email */}
+                <span className="hidden sm:block text-sm text-muted-foreground">
+                  {user.email}
+                </span>
+
+                {/* Dashboard Button */}
+                {!isHomePage && (
+                  <Button
+                    onClick={handleLogoClick}
+                    variant="ghost"
+                    size="sm"
+                    className="hidden sm:inline-flex"
+                  >
+                    Dashboard
+                  </Button>
+                )}
+
+                {/* Projects Button */}
+                <Button
+                  onClick={() => router.push(`/${user.uid}/userProjects`)}
+                  variant="ghost"
+                  size="sm"
+                >
+                  {isAdmin ? "All Projects" : "My Projects"}
+                </Button>
+
+                {/* Sign Out Button */}
+                <Button onClick={handleSignOut} variant="destructive" size="sm">
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  onClick={() => router.push("/")}
+                  variant="ghost"
+                  size="sm"
+                >
+                  Sign In
+                </Button>
+                <Button
+                  onClick={() => router.push("/signup")}
+                  variant="forest"
+                  size="sm"
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
+          </div>
         </div>
-
-        <Button
-          onClick={() =>
-            user ? router.push(`/${user.uid}/userProjects`) : router.push("/")
-          }
-          variant="forest-inverted"
-          size="sm"
-        >
-          My Projects
-        </Button>
       </div>
     </nav>
   );
