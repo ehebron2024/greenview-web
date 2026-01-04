@@ -252,7 +252,6 @@ export default function UserPage() {
     try {
       console.log("=== TOKEN DEBUG START ===");
       console.log("👤 User:", user.email);
-      console.log("🆔 UID:", user.uid);
 
       // Check current token
       console.log("\n📋 BEFORE REFRESH:");
@@ -394,9 +393,7 @@ export default function UserPage() {
                   .then(() => alert("Signed out. Please sign in again."));
               }}
               variant="destructive"
-            >
-              🚪 Sign Out & Sign In Again
-            </Button>
+            ></Button>
           </div>
         )}
 
@@ -495,9 +492,6 @@ export default function UserPage() {
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {user.email}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        UID: {user.name}...
                       </p>
                     </div>
 
