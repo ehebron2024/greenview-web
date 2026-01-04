@@ -70,20 +70,51 @@ export default function ProjectInfoPage() {
   }, []);
 
   useEffect(() => {
-    if (!projectId || !currentUser) {
+    if (!projectId || !userId) {
       if (!projectId) setError("No project ID provided");
+      if (!userId) setError("No user ID provided");
+      return;
+    }
+
+    // Don't fetch until we know current user and admin status
+    if (!currentUser || adminLoading) {
       return;
     }
 
     const fetchProject = async () => {
       try {
+        console.log("🔍 Fetching project:", {
+          projectId,
+          userId,
+          currentUser,
+          isAdmin,
+        });
+
+        // Check if user has permission to view this project
+        const isOwnProject = userId === currentUser;
+        const hasPermission = isOwnProject || isAdmin;
+
+        if (!hasPermission) {
+          console.warn("⚠️ User doesn't have permission to view this project");
+          setError("You don't have permission to view this project");
+          setTimeout(() => {
+            router.push(`/${currentUser}/userProjects`);
+          }, 2000);
+          return;
+        }
+
         const docRef = doc(db, "users", userId, "projects", projectId);
+        console.log("📄 Fetching document from:", docRef.path);
+
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           const projectData = { id: docSnap.id, ...docSnap.data() } as Project;
+          console.log("✅ Project found:", projectData);
           setProject(projectData);
+          setError(null);
         } else {
+          console.error("❌ Project document does not exist");
           setError("Project not found");
           setTimeout(() => {
             router.push(`/${currentUser}/userProjects`);
@@ -92,8 +123,8 @@ export default function ProjectInfoPage() {
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Unknown error";
+        console.error("❌ Project fetch error:", err);
         setError(`Failed to load project: ${errorMessage}`);
-        console.error("Project fetch error:", err);
         setTimeout(() => {
           router.push(`/${currentUser}/userProjects`);
         }, 2000);
@@ -103,7 +134,7 @@ export default function ProjectInfoPage() {
     };
 
     fetchProject();
-  }, [projectId, currentUser, userId, router]);
+  }, [projectId, currentUser, userId, router, isAdmin, adminLoading]);
 
   useEffect(() => {
     if (project && currentUser) {
@@ -141,7 +172,7 @@ export default function ProjectInfoPage() {
   if (loading || adminLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-foreground text-lg">Loading...</div>
+        <div className="text-foreground text-lg">Loading project...</div>
       </div>
     );
   }
@@ -149,8 +180,10 @@ export default function ProjectInfoPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="bg-destructive/10 border border-destructive text-destructive px-6 py-4 rounded-lg">
-          Error: {error}
+        <div className="bg-destructive/10 border border-destructive text-destructive px-6 py-4 rounded-lg max-w-md text-center">
+          <p className="font-semibold mb-2">Error</p>
+          <p>{error}</p>
+          <p className="text-sm mt-2">Redirecting...</p>
         </div>
       </div>
     );
@@ -179,7 +212,8 @@ export default function ProjectInfoPage() {
             <div>
               <p className="font-semibold">Admin Mode</p>
               <p className="text-xs">
-                You're viewing another user's project (Owner: {userId})
+                You're viewing another user's project (Owner:{" "}
+                {userId.slice(0, 8)}...)
               </p>
             </div>
           </div>
@@ -327,11 +361,11 @@ export default function ProjectInfoPage() {
             )}
 
             <Button
-              onClick={() => router.back()}
+              onClick={() => router.push(`/${currentUser}/userProjects`)}
               variant="secondary"
               className="flex-1"
             >
-              Back
+              Back to Projects
             </Button>
           </div>
         </div>

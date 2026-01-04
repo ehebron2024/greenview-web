@@ -10,6 +10,8 @@ import {
   doc,
   getDoc,
   getDocs,
+  collectionGroup,
+  query,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
 import { Button } from "@/components/ui/button";
@@ -98,31 +100,32 @@ const ProjectGallery: React.FC = () => {
 
     if (currentUser && !adminLoading) {
       if (isAdmin) {
-        // Admin: Fetch ALL projects from ALL users
+        // Admin: Use collectionGroup to fetch ALL projects
         const fetchAllProjects = async () => {
           try {
-            const usersRef = collection(db, "users");
-            const usersSnapshot = await getDocs(usersRef);
+            console.log(
+              "🔑 Admin mode: Fetching all projects using collectionGroup"
+            );
+
+            const projectsQuery = query(collectionGroup(db, "projects"));
+            const projectsSnapshot = await getDocs(projectsQuery);
             const allProjects: Project[] = [];
 
-            for (const userDoc of usersSnapshot.docs) {
-              const userProjectsRef = collection(
-                db,
-                "users",
-                userDoc.id,
-                "projects"
-              );
-              const projectsSnapshot = await getDocs(userProjectsRef);
+            projectsSnapshot.forEach((doc) => {
+              // Extract userId from document path: users/{userId}/projects/{projectId}
+              const pathParts = doc.ref.path.split("/");
+              const userIdFromPath = pathParts[1];
 
-              projectsSnapshot.forEach((doc) => {
-                allProjects.push({
-                  id: doc.id,
-                  userId: userDoc.id,
-                  ...doc.data(),
-                } as Project);
-              });
-            }
+              allProjects.push({
+                id: doc.id,
+                userId: userIdFromPath,
+                ...doc.data(),
+              } as Project);
+            });
 
+            console.log(
+              `✅ Fetched ${allProjects.length} projects from all users`
+            );
             setProjects(allProjects);
             setError("");
           } catch (err) {

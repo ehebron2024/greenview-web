@@ -4,7 +4,12 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 import { app, db } from "@/lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  collectionGroup,
+  query,
+} from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { useAdmin } from "@/hooks/useAdmin";
 
@@ -46,22 +51,30 @@ const UserProjects: React.FC = () => {
         let allProjects: Project[] = [];
 
         if (isAdmin) {
-          // Admin: Fetch ALL projects from ALL users
-          console.log("🔑 Admin mode: Fetching all projects from all users");
-          const usersSnapshot = await getDocs(collection(db, "users"));
+          // Admin: Use collectionGroup to fetch ALL projects across all users
+          console.log(
+            "🔑 Admin mode: Fetching all projects using collectionGroup"
+          );
 
-          for (const userDoc of usersSnapshot.docs) {
-            const projectsRef = collection(db, "users", userDoc.id, "projects");
-            const projectsSnapshot = await getDocs(projectsRef);
+          const projectsQuery = query(collectionGroup(db, "projects"));
+          const projectsSnapshot = await getDocs(projectsQuery);
 
-            projectsSnapshot.forEach((doc) => {
-              allProjects.push({
-                id: doc.id,
-                userId: userDoc.id,
-                ...doc.data(),
-              } as Project);
-            });
-          }
+          projectsSnapshot.forEach((doc) => {
+            // Extract userId from the document path
+            // Path format: users/{userId}/projects/{projectId}
+            const pathParts = doc.ref.path.split("/");
+            const userIdFromPath = pathParts[1]; // users/{userId}/projects/{projectId}
+
+            allProjects.push({
+              id: doc.id,
+              userId: userIdFromPath,
+              ...doc.data(),
+            } as Project);
+          });
+
+          console.log(
+            `✅ Fetched ${allProjects.length} projects from all users`
+          );
         } else {
           // Regular user: Only their projects
           const projectsRef = collection(db, "users", userId, "projects");
@@ -123,7 +136,7 @@ const UserProjects: React.FC = () => {
 
         {isAdmin && (
           <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
-            🔑 Admin Mode: Viewing all user projects
+            🔑 Admin Mode: Viewing all user projects ({projects.length} total)
           </div>
         )}
 
@@ -153,7 +166,7 @@ const UserProjects: React.FC = () => {
 
                 {isAdmin && project.userId !== userId && (
                   <div className="mb-2 px-2 py-1 bg-amber-100 border border-amber-300 rounded text-xs text-amber-800">
-                    Owner: {project.userId}
+                    Owner: {project.userId.slice(0, 8)}...
                   </div>
                 )}
 
