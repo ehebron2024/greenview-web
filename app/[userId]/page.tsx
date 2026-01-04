@@ -40,6 +40,7 @@ export default function UserPage() {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [totalProjects, setTotalProjects] = useState<number>(0);
   const [loadingStats, setLoadingStats] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { isAdmin, loading: adminLoading } = useAdmin();
 
   useEffect(() => {
@@ -74,47 +75,133 @@ export default function UserPage() {
     fetchUserName();
   }, [router]);
 
-  // Fetch admin stats
+  // Fetch admin stats with better error handling
   useEffect(() => {
-    if (!isAdmin || adminLoading) return;
+    if (!isAdmin || adminLoading) {
+      console.log("⏸️ Skipping admin stats:", { isAdmin, adminLoading });
+      return;
+    }
 
     const fetchAdminStats = async () => {
       setLoadingStats(true);
-      try {
-        console.log("🔑 Admin: Fetching system statistics");
+      setError(null);
 
-        // Fetch all users
-        const usersSnapshot = await getDocs(collection(db, "users"));
+      try {
+        console.log("🔑 Admin: Starting to fetch system statistics");
+
+        // First verify admin token
+        const auth = getAuth(app);
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const token = await currentUser.getIdTokenResult();
+          console.log("🎫 Token claims:", token.claims);
+
+          if (!token.claims.admin) {
+            throw new Error(
+              "Admin claim not found in token. Please sign out and sign back in."
+            );
+          }
+        }
+
+        // Fetch all users with timeout
+        console.log("📊 Fetching users collection...");
+        const usersPromise = getDocs(collection(db, "users"));
+        const usersSnapshot = (await Promise.race([
+          usersPromise,
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Users fetch timeout")), 10000)
+          ),
+        ])) as any;
+
+        console.log(`✅ Found ${usersSnapshot.size} users`);
         const usersData: User[] = [];
 
+        // Fetch projects for each user
         for (const userDoc of usersSnapshot.docs) {
           const userData = userDoc.data();
+          console.log(`👤 Processing user: ${userData.email || userDoc.id}`);
 
-          // Count projects for each user
-          const projectsSnapshot = await getDocs(
-            collection(db, "users", userDoc.id, "projects")
-          );
+          try {
+            const projectsRef = collection(db, "users", userDoc.id, "projects");
+            const projectsSnapshot = await getDocs(projectsRef);
+            console.log(
+              `   📁 Found ${projectsSnapshot.size} projects for ${userData.email}`
+            );
 
-          usersData.push({
-            id: userDoc.id,
-            email: userData.email || "No email",
-            name: userData.name,
-            projectCount: projectsSnapshot.size,
-          });
+            usersData.push({
+              id: userDoc.id,
+              email: userData.email || "No email",
+              name: userData.name,
+              projectCount: projectsSnapshot.size,
+            });
+          } catch (projectError: any) {
+            console.error(
+              `⚠️ Error fetching projects for user ${userDoc.id}:`,
+              projectError
+            );
+
+            // Add user even if projects fail
+            usersData.push({
+              id: userDoc.id,
+              email: userData.email || "No email",
+              name: userData.name,
+              projectCount: 0,
+            });
+          }
         }
 
         setAllUsers(usersData);
 
         // Get total project count using collectionGroup
+        console.log("📊 Fetching all projects using collectionGroup...");
         const allProjectsQuery = query(collectionGroup(db, "projects"));
-        const allProjectsSnapshot = await getDocs(allProjectsQuery);
+
+        const projectsPromise = getDocs(allProjectsQuery);
+        const allProjectsSnapshot = (await Promise.race([
+          projectsPromise,
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Projects fetch timeout")), 15000)
+          ),
+        ])) as any;
+
+        console.log(`✅ Found ${allProjectsSnapshot.size} total projects`);
         setTotalProjects(allProjectsSnapshot.size);
 
         console.log(
-          `✅ Found ${usersData.length} users with ${allProjectsSnapshot.size} total projects`
+          `✅ Successfully loaded ${usersData.length} users with ${allProjectsSnapshot.size} total projects`
         );
-      } catch (error) {
-        console.error("Error fetching admin stats:", error);
+      } catch (error: any) {
+        console.error("❌ Error fetching admin stats:", error);
+        console.error("Error code:", error.code);
+        console.error("Error message:", error.message);
+        console.error("Error name:", error.name);
+
+        // Set user-friendly error message
+        if (error.message?.includes("timeout")) {
+          setError(
+            "Request timed out. The database may be slow or unavailable."
+          );
+        } else if (error.code === "permission-denied") {
+          setError(
+            "Permission denied. Please check Firestore rules and ensure admin claim is set."
+          );
+        } else if (error.code === "cancelled") {
+          setError(
+            "Request was cancelled. This may be a permissions issue. Try signing out and back in."
+          );
+        } else if (error.message?.includes("Admin claim")) {
+          setError(error.message);
+        } else if (error.code === "unavailable") {
+          setError("Firestore is temporarily unavailable. Please try again.");
+        } else {
+          setError(
+            `Failed to load admin data: ${error.message || "Unknown error"}`
+          );
+        }
+
+        // Reset data on error
+        setAllUsers([]);
+        setTotalProjects(0);
       } finally {
         setLoadingStats(false);
       }
@@ -141,10 +228,15 @@ export default function UserPage() {
     router.push(`/${targetUserId}/userProjects`);
   };
 
+  const handleRetry = () => {
+    setError(null);
+    window.location.reload();
+  };
+
   if (adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-foreground">Loading...</div>
+        <div className="text-foreground">Loading admin status...</div>
       </div>
     );
   }
@@ -152,6 +244,24 @@ export default function UserPage() {
   return (
     <div className="min-h-screen bg-background text-foreground py-12 px-4">
       <div className="max-w-6xl mx-auto">
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-destructive/10 border-2 border-destructive rounded-lg text-destructive">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">⚠️</span>
+                <div>
+                  <p className="font-bold text-lg">Error Loading Data</p>
+                  <p className="text-sm">{error}</p>
+                </div>
+              </div>
+              <Button onClick={handleRetry} variant="outline" size="sm">
+                🔄 Retry
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Admin Badge */}
         {isAdmin && (
           <div className="mb-6 p-4 bg-amber-50 border-2 border-amber-300 rounded-lg text-amber-900">
@@ -206,7 +316,7 @@ export default function UserPage() {
         </div>
 
         {/* Admin Stats */}
-        {isAdmin && (
+        {isAdmin && !error && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-card rounded-lg shadow border border-border p-6 text-center">
               <p className="text-4xl font-bold text-primary mb-2">
@@ -234,7 +344,7 @@ export default function UserPage() {
         )}
 
         {/* Admin Users List */}
-        {isAdmin && (
+        {isAdmin && !error && (
           <div className="bg-card rounded-lg shadow-lg border border-border p-8">
             <h3 className="text-2xl font-bold mb-6 text-foreground">
               All Users ({allUsers.length})
