@@ -210,6 +210,36 @@ export default function UserPage() {
     fetchAdminStats();
   }, [isAdmin, adminLoading]);
 
+  const forceTokenRefresh = async () => {
+    const auth = getAuth(app);
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert("No user logged in");
+      return;
+    }
+
+    try {
+      console.log("🔄 Forcing token refresh...");
+      const token = await user.getIdToken(true); // Force refresh
+      console.log("✅ Token refreshed");
+
+      const tokenResult = await user.getIdTokenResult();
+      console.log("📋 New token claims:", tokenResult.claims);
+      console.log("🔑 Admin claim:", tokenResult.claims.admin);
+
+      if (tokenResult.claims.admin) {
+        alert("✅ Admin claim verified! Refreshing page...");
+        window.location.reload();
+      } else {
+        alert("❌ Admin claim NOT found. Run setAdmin.js script.");
+      }
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+      alert(`Error: ${error}`);
+    }
+  };
+
   const displayName = userName || getFirstNameFromEmail(email);
 
   const handleProjectsClick = () => {
@@ -274,6 +304,26 @@ export default function UserPage() {
                 </p>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Temporary Buttons */}
+        {isAdmin && (
+          <div className="mb-6 flex gap-4">
+            <Button onClick={forceTokenRefresh} variant="outline">
+              🔄 Refresh Admin Token
+            </Button>
+            <Button
+              onClick={() => {
+                const auth = getAuth(app);
+                auth
+                  .signOut()
+                  .then(() => alert("Signed out. Please sign in again."));
+              }}
+              variant="destructive"
+            >
+              🚪 Sign Out & Sign In Again
+            </Button>
           </div>
         )}
 

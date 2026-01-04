@@ -22,14 +22,13 @@ async function setAdminCustomClaim(uid) {
     if (customClaims.admin === true) {
       console.log(`✅ User ${uid} is already an admin.`);
       console.log('Custom claims:', customClaims);
-      process.exit(0);
       return;
     }
 
-    console.log('⚙️  Setting admin claim...');
+    console.log('⚙️  Setting admin claim to TRUE...');
     
     // Set the 'admin' claim to true
-    await admin.auth().setCustomUserClaims(uid, { ...customClaims, admin: true });
+    await admin.auth().setCustomUserClaims(uid, { admin: true });
     
     console.log(`✅ Custom claim 'admin: true' set for user ${uid}.`);
 
@@ -38,15 +37,15 @@ async function setAdminCustomClaim(uid) {
     console.log('✅ Updated custom claims:', updatedUser.customClaims);
 
     console.log('\n⚠️  IMPORTANT NEXT STEPS:');
-    console.log('1. Sign out from your web app');
+    console.log('1. User must sign out completely from your web app');
     console.log('2. Sign back in');
-    console.log('3. Or run: auth.currentUser.getIdToken(true) in browser console');
+    console.log('3. The new admin claim will be in their token');
+    console.log('\nOR run this in browser console after signing in:');
+    console.log('auth.currentUser.getIdToken(true).then(() => location.reload())');
 
-    process.exit(0);
   } catch (error) {
     console.error('❌ Error setting custom admin claim:', error);
     console.error('Error details:', error.message);
-    process.exit(1);
   }
 }
 
@@ -67,12 +66,17 @@ async function setAdminByEmail(email) {
     
     if (error.code === 'auth/user-not-found') {
       console.log('\n💡 TIP: Make sure the user exists in Firebase Authentication');
+      console.log('   Check: https://console.firebase.google.com/project/_/authentication/users');
     }
-    
-    process.exit(1);
   }
 }
 
 // Run it
 console.log('🚀 Starting admin setup script...\n');
-setAdminByEmail('eden.hebron@gmail.com');
+setAdminByEmail('eden.hebron@gmail.com').then(() => {
+  console.log('\n✅ Script completed');
+  process.exit(0);
+}).catch(err => {
+  console.error('\n❌ Script failed:', err);
+  process.exit(1);
+});
