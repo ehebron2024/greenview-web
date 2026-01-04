@@ -510,17 +510,6 @@ export default function UserPage() {
                           {user.projectCount === 1 ? "project" : "projects"}
                         </p>
                       </div>
-
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleUserClick(user.id);
-                        }}
-                      >
-                        View Projects →
-                      </Button>
                     </div>
                   </div>
                 ))}
