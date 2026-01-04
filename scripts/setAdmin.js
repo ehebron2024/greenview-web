@@ -73,7 +73,7 @@ async function setAdminByEmail(email) {
 
 // Run it
 console.log('🚀 Starting admin setup script...\n');
-setAdminByEmail('eden.hebron@gmail.com').then(() => {
+setAdminByEmail('admin.yes@gmail.com').then(() => {
   console.log('\n✅ Script completed');
   process.exit(0);
 }).catch(err => {
