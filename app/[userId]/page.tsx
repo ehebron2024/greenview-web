@@ -497,7 +497,7 @@ export default function UserPage() {
                         {user.email}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        UID: {user.id.slice(0, 12)}...
+                        UID: {user.name}...
                       </p>
                     </div>
 
