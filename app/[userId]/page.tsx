@@ -240,6 +240,54 @@ export default function UserPage() {
     }
   };
 
+  const debugAndRefreshToken = async () => {
+    const auth = getAuth(app);
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert("❌ No user logged in");
+      return;
+    }
+
+    try {
+      console.log("=== TOKEN DEBUG START ===");
+      console.log("👤 User:", user.email);
+      console.log("🆔 UID:", user.uid);
+
+      // Check current token
+      console.log("\n📋 BEFORE REFRESH:");
+      const oldToken = await user.getIdTokenResult();
+      console.log("  Admin claim:", oldToken.claims.admin);
+      console.log("  Token issued at:", new Date(oldToken.issuedAtTime));
+
+      // Force refresh
+      console.log("\n🔄 Forcing token refresh...");
+      await user.getIdToken(true);
+
+      // Check new token
+      console.log("\n📋 AFTER REFRESH:");
+      const newToken = await user.getIdTokenResult();
+      console.log("  Admin claim:", newToken.claims.admin);
+      console.log("  Token issued at:", new Date(newToken.issuedAtTime));
+      console.log("  All claims:", newToken.claims);
+      console.log("=== TOKEN DEBUG END ===\n");
+
+      if (newToken.claims.admin === true) {
+        alert(
+          "✅ SUCCESS! Admin claim verified!\n\nPage will reload in 2 seconds."
+        );
+        setTimeout(() => window.location.reload(), 2000);
+      } else {
+        alert(
+          "❌ Admin claim is STILL NOT in your token.\n\nYou MUST:\n1. Click 'Sign Out' button\n2. Close ALL browser tabs\n3. Open fresh tab and sign in again\n\nThe token is cached and won't update otherwise."
+        );
+      }
+    } catch (error: any) {
+      console.error("❌ Error:", error);
+      alert(`Error: ${error.message}`);
+    }
+  };
+
   const displayName = userName || getFirstNameFromEmail(email);
 
   const handleProjectsClick = () => {
@@ -285,8 +333,33 @@ export default function UserPage() {
                   <p className="text-sm">{error}</p>
                 </div>
               </div>
+            </div>
+            <div className="mt-4 flex gap-2">
               <Button onClick={handleRetry} variant="outline" size="sm">
                 🔄 Retry
+              </Button>
+              <Button
+                onClick={debugAndRefreshToken}
+                variant="secondary"
+                size="sm"
+              >
+                🔍 Debug & Refresh Token
+              </Button>
+              <Button
+                onClick={() => {
+                  getAuth(app)
+                    .signOut()
+                    .then(() => {
+                      alert(
+                        "✅ Signed out!\n\nNow sign in again with a fresh session."
+                      );
+                      router.push("/");
+                    });
+                }}
+                variant="destructive"
+                size="sm"
+              >
+                🚪 Sign Out
               </Button>
             </div>
           </div>
