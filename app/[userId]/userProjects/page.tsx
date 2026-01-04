@@ -166,7 +166,7 @@ const UserProjects: React.FC = () => {
 
                 {isAdmin && project.userId !== userId && (
                   <div className="mb-2 px-2 py-1 bg-amber-100 border border-amber-300 rounded text-xs text-amber-800">
-                    Owner: {project.name.slice(0, 8)}...
+                    Owner: {project.name}....
                   </div>
                 )}
 
