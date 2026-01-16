@@ -487,9 +487,6 @@ export default function UserPage() {
                         </p>
                       </div>
                     </div>
-                    <Button onClick={forceTokenRefresh} variant="outline">
-                      🔄 Refresh Admin Token
-                    </Button>
                   </div>
                 ))}
               </div>
