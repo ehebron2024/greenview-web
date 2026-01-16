@@ -379,24 +379,6 @@ export default function UserPage() {
           </div>
         )}
 
-        {/* Temporary Buttons */}
-        {isAdmin && (
-          <div className="mb-6 flex gap-4">
-            <Button onClick={forceTokenRefresh} variant="outline">
-              🔄 Refresh Admin Token
-            </Button>
-            <Button
-              onClick={() => {
-                const auth = getAuth(app);
-                auth
-                  .signOut()
-                  .then(() => alert("Signed out. Please sign in again."));
-              }}
-              variant="destructive"
-            ></Button>
-          </div>
-        )}
-
         {/* Welcome Card */}
         <div className="bg-card rounded-lg shadow-lg border border-border p-8 mb-8">
           <div className="text-center mb-8">
@@ -505,6 +487,9 @@ export default function UserPage() {
                         </p>
                       </div>
                     </div>
+                    <Button onClick={forceTokenRefresh} variant="outline">
+                      🔄 Refresh Admin Token
+                    </Button>
                   </div>
                 ))}
               </div>
