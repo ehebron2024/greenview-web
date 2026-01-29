@@ -431,7 +431,7 @@ export default function RoomDetailPage() {
       <div className="max-w-4xl mx-auto">
         {isAdmin && currentUser !== userId && (
           <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
-            🔑 Admin Mode: You're viewing another user's room
+            🔑 Manager Mode: You're viewing another user's room
           </div>
         )}
 

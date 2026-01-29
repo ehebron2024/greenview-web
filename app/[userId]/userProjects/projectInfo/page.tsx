@@ -154,7 +154,7 @@ export default function ProjectInfoPage() {
 
     const confirmMessage =
       isAdmin && !isOwner
-        ? "⚠️ Admin Action: Are you sure you want to delete this user's project? This cannot be undone."
+        ? "⚠️ Project Action: Are you sure you want to delete this user's project? This cannot be undone."
         : "Are you sure you want to delete this project? This cannot be undone.";
 
     if (!confirm(confirmMessage)) return;
@@ -208,7 +208,6 @@ export default function ProjectInfoPage() {
       <div className="max-w-4xl mx-auto">
         {isAdmin && !isOwner && (
           <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm flex items-center gap-2">
-            <span>🔑</span>
             <div>
               <p className="font-semibold">Admin Mode</p>
               <p className="text-xs">
