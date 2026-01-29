@@ -26,8 +26,20 @@ async function setAdminByUID(uid) {
   }
 }
 
-// REPLACE WITH YOUR ADMIN USER'S UID
-setAdminByUID('dKniak7uRyVat6T6tFesN0PQy703').then(() => {
+// Set multiple admins
+async function setMultipleAdmins() {
+  console.log('🚀 Setting admin claims for multiple users...\n');
+  
+  // admin.yes@gmail.com
+  await setAdminByUID('fFbX03ACBdPLbN5uoouG3A3PQfu2');
+  
+  // tomer@greenviewrenovation.com
+  await setAdminByUID('kRVqU53ceLcs24qHTxJ3MOZd0C12');
+  
+  console.log('\n✅ All admin claims set!');
+}
+
+setMultipleAdmins().then(() => {
   process.exit(0);
 }).catch(err => {
   console.error('❌ Failed:', err.message);
