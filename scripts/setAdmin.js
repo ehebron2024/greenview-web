@@ -27,7 +27,7 @@ async function setAdminByUID(uid) {
 }
 
 // REPLACE WITH YOUR ADMIN USER'S UID
-setAdminByUID('YOUR_USER_ID_HERE').then(() => {
+setAdminByUID('dKniak7uRyVat6T6tFesN0PQy703').then(() => {
   process.exit(0);
 }).catch(err => {
   console.error('❌ Failed:', err.message);
