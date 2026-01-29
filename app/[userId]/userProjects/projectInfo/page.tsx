@@ -212,7 +212,10 @@ export default function ProjectInfoPage() {
               <p className="font-semibold">Admin Mode</p>
               <p className="text-xs">
                 You're viewing another user's project (Owner:{" "}
-                {userId.slice(0, 8)}...)
+                {project?.originalOwnerId ||
+                  project?.sharedWith?.[0]?.email ||
+                  "Unknown"}
+                )
               </p>
             </div>
           </div>

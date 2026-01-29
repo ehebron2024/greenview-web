@@ -127,7 +127,7 @@ const UserProjects: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-foreground">
-            {isAdmin ? "All Projects (Admin)" : "My Projects"}
+            {isAdmin ? "All Projects (Project Manager)" : "My Projects"}
           </h1>
           <Button onClick={handleNewProjectClick} variant="forest" size="lg">
             Create New Project
@@ -136,7 +136,7 @@ const UserProjects: React.FC = () => {
 
         {isAdmin && (
           <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
-            🔑 Admin Mode: Viewing all user projects ({projects.length} total)
+            🔑 Manager Mode: Viewing all user projects ({projects.length} total)
           </div>
         )}
 
