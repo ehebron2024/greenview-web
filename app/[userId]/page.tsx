@@ -313,7 +313,7 @@ export default function UserPage() {
   if (adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-foreground">Loading admin status...</div>
+        <div className="text-foreground">Loading manager status...</div>
       </div>
     );
   }
@@ -370,7 +370,7 @@ export default function UserPage() {
             <div className="flex items-center gap-2">
               <span className="text-2xl">🔑</span>
               <div>
-                <p className="font-bold text-lg">Administrator Access</p>
+                <p className="font-bold text-lg">Management Access</p>
                 <p className="text-sm">
                   You have full system access to all users and projects
                 </p>

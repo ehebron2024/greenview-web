@@ -53,7 +53,7 @@ const UserProjects: React.FC = () => {
         if (isAdmin) {
           // Admin: Use collectionGroup to fetch ALL projects across all users
           console.log(
-            "🔑 Admin mode: Fetching all projects using collectionGroup"
+            "🔑 Project Manager Mode: Fetching all projects using collectionGroup"
           );
 
           const projectsQuery = query(collectionGroup(db, "projects"));

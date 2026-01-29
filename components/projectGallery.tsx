@@ -104,7 +104,7 @@ const ProjectGallery: React.FC = () => {
         const fetchAllProjects = async () => {
           try {
             console.log(
-              "🔑 Admin mode: Fetching all projects using collectionGroup"
+              "🔑 Manager mode: Fetching all projects using collectionGroup"
             );
 
             const projectsQuery = query(collectionGroup(db, "projects"));
@@ -268,7 +268,7 @@ const ProjectGallery: React.FC = () => {
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
           {isAdmin
-            ? "All Projects (Admin)"
+            ? "All Projects (Manager)"
             : userName
             ? `${userName}'s Projects`
             : "Projects"}
@@ -280,7 +280,7 @@ const ProjectGallery: React.FC = () => {
 
       {isAdmin && (
         <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
-          🔑 Admin Mode: Viewing all user projects
+          🔑 Manager Mode: Viewing all user projects
         </div>
       )}
 

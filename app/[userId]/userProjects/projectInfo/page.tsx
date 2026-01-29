@@ -346,7 +346,9 @@ export default function ProjectInfoPage() {
                 variant="forest"
                 className="flex-1"
               >
-                {isAdmin && !isOwner ? "Edit Project (Admin)" : "Edit Project"}
+                {isAdmin && !isOwner
+                  ? "Edit Project (Manager)"
+                  : "Edit Project"}
               </Button>
             )}
 
@@ -356,7 +358,7 @@ export default function ProjectInfoPage() {
                 variant="destructive"
                 className="flex-1"
               >
-                {isAdmin && !isOwner ? "Delete (Admin)" : "Delete Project"}
+                {isAdmin && !isOwner ? "Delete (Manager)" : "Delete Project"}
               </Button>
             )}
 
