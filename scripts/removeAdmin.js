@@ -25,5 +25,3 @@ async function removeAdmin(email) {
   
   process.exit(0);
 }
-
-removeAdmin('eden.hebron@gmail.com');
